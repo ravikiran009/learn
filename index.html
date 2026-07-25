@@ -374,6 +374,50 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.85rem;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.75rem 1.25rem;
+      text-align: left;
+    }
+
+    .summary-table th {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      font-weight: 600;
+      border-bottom: 2px solid #ffffff;
+    }
+
+    .summary-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .summary-table th:first-child,
+    .summary-table td:first-child {
+      border-right: 2px solid #ffffff;
+      width: 220px;
+      min-width: 180px;
+      font-weight: 600;
+    }
+
+    .output-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #34d399;
+      margin: 0.5rem 0 1rem 0;
+    }
+
     .placeholder-card {
       text-align: center;
       padding: 2.5rem 1rem;
