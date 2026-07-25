@@ -557,6 +557,23 @@
             <li><b>Global (G):</b> Hash lookup in <code>f_globals</code> dict via <code>LOAD_GLOBAL</code>.</li>
             <li><b>Built-in (B):</b> Fallback hash lookup in <code>f_builtins</code> dict.</li>
           </ul>
+
+          <h3>6. Global Interpreter Lock (GIL) & Thread State</h3>
+          <p>The GIL (<code>PyThread_type_lock</code>) enforces atomic execution by allowing only one OS thread to run bytecode per interpreter state. Each thread owns a <code>PyThreadState</code>. Threads releasing the GIL during blocking kernel I/O operations allow concurrency.</p>
+
+          <h3>7. Compilation & Frame Allocation Flowchart</h3>
+          <div class="diagram">Source (.py) ──> Lexer ──> Tokens ──> PEG Parser ──> AST ──> Symbol Table ──> PyCodeObject
+                                                                                            │
+                                                                                C-Heap Frame Allocation
+                                                                                            │
+                                                                                            v
++-------------------------------------------------------------------------------------------------------+
+| PyFrameObject (Linked List Node on C-Heap)                                                            |
+|  [f_back]      ──> Pointer to caller's PyFrameObject                                                  |
+|  [f_code]      ──> Pointer to PyCodeObject (bytecode, co_consts, co_names)                           |
+|  [f_globals]   ──> Pointer to Globals dict                                                            |
+|  [f_localsplus]──> Array: [Locals (O(1) LOAD_FAST)] [Cell Vars (LOAD_DEREF)] [Evaluation Stack]       |
++-------------------------------------------------------------------------------------------------------+</div>
         </div>
 
         <!-- DAY 2 -->
@@ -570,18 +587,27 @@
 } PyObject;</code></pre>
 
           <h3>2. Three-Tier Memory Allocator (<code>pymalloc</code>)</h3>
-          <div class="diagram">
-[ Tier 3: Python High-Level Application Objects ]
-                     │
-[ Tier 2: PyObject Allocation Layer (PyObject_New) ]
-                     │
-[ Tier 1: Small Object Allocator (pymalloc <= 512 bytes) ]
-        ┌────────────┴────────────┐
-    Arenas (256 KB)         Large Objects (> 512B)
-    └─ Pools (4 KB)         └─ Standard C malloc()
-       └─ Blocks (8-512B)
-                     │
-[ Tier 0: OS Kernel System Allocator (mmap / brk / VirtualAlloc) ]</div>
+          <div class="diagram">===================================================================================
+                       CPYTHON 3-TIER PYMALLOC ARCHITECTURE
+===================================================================================
+[ Tier 3: Python High-Level Application Objects (dict, list, int, str, frame) ]
+                                   │ (PyObject_New / PyObject_GC_New)
+                                   v
+[ Tier 2: pymalloc Small Object Allocator (Objects <= 512 bytes) ]
+        ┌──────────────────────────┴──────────────────────────┐
+  Arenas (256 KB)                                       Large Objects (> 512B)
+  └─ Pools (4 KB)                                       └─ Standard C malloc()
+     └─ Blocks (8 to 512 bytes, 8-byte aligned)
+                                   │
+                                   v
+[ Tier 0: OS Kernel Virtual Memory Manager (mmap / brk / VirtualAlloc) ]</div>
+
+          <h3>3. Small Int Singletons, String Interning & Free Lists</h3>
+          <ul>
+            <li><b>Small Integer Cache:</b> Pre-allocates singletons for <code>[-5, 257]</code> during runtime bootstrap.</li>
+            <li><b>String Interning:</b> Interns identifiers in a global dict to enable $O(1)$ C pointer equality checks.</li>
+            <li><b>Object Free Lists:</b> Recycles memory buffers for floats, tuples, lists, and frames to bypass <code>pymalloc</code> calls.</li>
+          </ul>
 
           <h3>3. Cyclic Garbage Collection (<code>Modules/gcmodule.c</code>)</h3>
           <p>Containers tracked by GC prepend a <code>PyGC_Head</code> doubly-linked list header, maintaining 3 generational lists (Gen 0, Gen 1, Gen 2) and executing <i>Trial Deletion</i>:</p>
@@ -590,6 +616,17 @@
             <li>Traverses internal references and decrements <code>gc_refs</code> of target objects.</li>
             <li>Objects with <code>gc_refs == 0</code> are isolated as unreachable cycles, finalized (<code>tp_finalize</code>), and deallocated.</li>
           </ol>
+
+          <h3>4. Memory Allocation & GC Trial Deletion Flowchart</h3>
+          <div class="diagram">===================================================================================
+                  GENERATIONAL CYCLIC GC (TRIAL DELETION FLOW)
+===================================================================================
+  Candidate Containers (PyGC_Head Header Prepended)
+  [Gen 0 (Young)] ──> [Gen 1 (Middle)] ──> [Gen 2 (Old)]
+         │
+         ├──> 1. Copy ob_refcnt -> gc_refs
+         ├──> 2. Traverse tp_traverse & decrement target gc_refs
+         └──> 3. If gc_refs == 0: Isolate Unreachable Cycle ──> tp_finalize & PyObject_GC_Del</div>
         </div>
 
         <!-- DAY 3 -->
@@ -601,6 +638,27 @@
 
           <h3>2. Evaluation Loop & Adaptive Opcodes (PEP 659)</h3>
           <p>In Python 3.11+, <code>PyEval_EvalFrameDefault</code> dynamically transforms generic opcodes like <code>LOAD_GLOBAL</code> into specialized adaptive instructions (<code>LOAD_GLOBAL_MODULE</code> / <code>LOAD_GLOBAL_BUILTIN</code>) to cache dictionary version tags and bypass dictionary hashing.</p>
+
+          <h3>3. Instruction Format & PEP 659 Adaptive Execution Flowchart</h3>
+          <div class="diagram">===================================================================================
+                 16-BIT WORDCODE INSTRUCTION LAYOUT (Python 3.11+)
+===================================================================================
+ +-------------------------------------+-------------------------------------+
+ |        Opcode (1 Byte / 8-bit)      |       Argument (1 Byte / 8-bit)     |
+ +-------------------------------------+-------------------------------------+
+
+===================================================================================
+             PEP 659 ADAPTIVE OPCODE SPECIALIZATION FLOWCHART
+===================================================================================
+                     PyEval_EvalFrameDefault() Bytecode Loop
+                                        │
+                         Check Warm Counter / Adaptive State
+                                       / \
+                               (Cold) /   \ (Warm - Specialize)
+                                     v     v
+                         Generic Opcode   Specialized Opcode (e.g. LOAD_GLOBAL_MODULE)
+                         - Hashing Dict   - Checks Cached Version Guard
+                         - Search globals - Fetches Value via Direct C Array Pointer O(1)</div>
         </div>
 
         <!-- DAY 4 -->
@@ -615,6 +673,31 @@
 
           <h3>3. Mutable Default Arguments Trap</h3>
           <p>Default parameters (e.g. <code>def foo(a=[])</code>) are evaluated <b>once</b> at module load time. The list pointer is stored in the function's <code>func_defaults</code> tuple on the heap and reused across all function invocations.</p>
+
+          <h3>4. Vectorcall & Closure Cell Scope Resolution Flowchart</h3>
+          <div class="diagram">===================================================================================
+                       VECTORCALL FAST-CALL PROTOCOL (PEP 590)
+===================================================================================
+ Standard Call (Slow):
+   Caller ──> Create (args, kwargs) Tuple & Dict ──> Function Entry (GC Overhead)
+
+ Vectorcall (Fast O(1)):
+   Caller ──> Pass Raw C Array Pointer: PyObject *const *args + Flags ──> Function Entry
+
+===================================================================================
+                     CLOSURE CELL RESOLUTION (PyCellObject)
+===================================================================================
+ Outer Scope (popped frame):                    Inner Scope (active function):
+ +--------------------------+                   +--------------------------+
+ | outer_func() frame       |                   | inner_func Object        |
+ |  x = 42                  |                   |  func_closure tuple      |
+ +--------------------------+                   +--------------------------+
+              \                                             /
+               v                                           v
+       +-----------------------------------------------------------+
+       |                      PyCellObject                         |
+       |  [ob_refcnt = 1]   │   [ob_ref] ──> PyLongObject (42)     |
+       +-----------------------------------------------------------+</div>
         </div>
 
         <!-- DAY 5 -->
@@ -631,6 +714,30 @@
 
           <h3>2. Suspension and Resumption</h3>
           <p>Encountering <code>YIELD_VALUE</code> saves the current instruction offset in <code>gi_frame->f_lasti</code>, sets state to <code>FRAME_SUSPENDED</code>, and returns control to the caller without destroying <code>gi_frame</code> from the C-heap.</p>
+
+          <h3>3. Generator Frame Suspension & Resumption State Diagram</h3>
+          <div class="diagram">===================================================================================
+                GENERATOR EXECUTION STATE TRANSITION DIAGRAM
+===================================================================================
+                     +---------------------------------+
+                     |          GEN_CREATED            | (gi_frame allocated on C-Heap)
+                     +---------------------------------+
+                                      │
+                               next() / send()
+                                      v
+                     +---------------------------------+
+                     |           GEN_RUNNING           | (PyEval_EvalFrameDefault active)
+                     +---------------------------------+
+                            /                     \
+                YIELD_VALUE                        return / Exception
+                           /                       \
+                          v                         v
+       +---------------------------------+   +---------------------------------+
+       |          GEN_SUSPENDED          |   |           GEN_CLOSED            |
+       | - Save instruction offset f_lasti|   | - Free gi_frame from C-Heap     |
+       | - Yield value back to caller    |   | - Set gi_frame pointer = NULL   |
+       | - Frame remains on C-Heap       |   +---------------------------------+
+       +---------------------------------+</div>
         </div>
 
         <!-- DAY 6 -->
@@ -642,6 +749,30 @@
 
           <h3>2. Kernel File Descriptors & Resource Management</h3>
           <p>Python file objects wrap OS File Descriptors (integers managed by kernel tables). Omitting <code>with</code> context managers risks leaking file descriptors if objects get trapped in cyclic GC lists, leading to <code>EMFILE</code> errors.</p>
+
+          <h3>3. Zero-Cost Exception Handling & Kernel FD Cleanup Flowchart</h3>
+          <div class="diagram">===================================================================================
+           ZERO-COST EXCEPTION TABLES (co_exceptiontable in Python 3.11+)
+===================================================================================
+ Normal Path:    [Bytecode Loop] ──> Execute Opcodes ──> Zero Setup Overhead!
+
+ Exception Raised: [PyErr_SetString] ──> Binary Search co_exceptiontable Range
+                                                │
+                                       Match Range Found?
+                                       /                \
+                                 (YES)/                  \(NO)
+                                     v                    v
+                        Jump to Handler Offset   Unwind & Pop Frame to f_back
+
+===================================================================================
+                KERNEL FILE DESCRIPTOR (FD) LEAK PREVENTER FLOW
+===================================================================================
+ [open("data.txt")] ──> OS Kernel Allocates Integer File Descriptor (e.g., FD 3)
+         │
+  with context block:
+         ├──> __enter__() returns File Handle wrapper
+         ├──> Code Block executes
+         └──> __exit__() ALWAYS executes ──> close(3) Syscall ──> Releases Kernel FD</div>
         </div>
 
         <!-- DAY 7 -->
@@ -655,6 +786,25 @@
             <li><b>Evaluation Loop Execution:</b> <code>PyEval_EvalFrameDefault()</code> executes bytecode, managing objects via <code>pymalloc</code> and OS system calls.</li>
             <li><b>Teardown & Exit:</b> <code>Py_FinalizeEx()</code> flushes streams, runs final GC sweep, releases memory, and issues OS <code>exit_group()</code>.</li>
           </ol>
+
+          <h3>2. Complete End-to-End Program Execution Architecture Flowchart</h3>
+          <div class="diagram">===================================================================================
+               END-TO-END CPYTHON PROGRAM EXECUTION ARCHITECTURE
+===================================================================================
+[1. OS Kernel Shell Execution]
+   execve("/usr/bin/python3", ["script.py"], envp) ──> Maps ELF binary to VMem
+                               │
+[2. CPython Runtime Bootstrap]
+   Py_Initialize() ──> Allocates InterpreterState, ThreadState, pymalloc & GIL
+                               │
+[3. Source Compilation Pipeline]
+   Source Code ──> Lexer (tokens) ──> PEG Parser ──> AST ──> Symtable ──> PyCodeObject
+                               │
+[4. Evaluation Frame & Opcode Loop]
+   Allocates PyFrameObject on C-Heap ──> PyEval_EvalFrameDefault() ──> pymalloc & GC
+                               │
+[5. Program Termination & Resource Cleanup]
+   Py_FinalizeEx() ──> Runs final GC sweep ──> Flushes I/O ──> OS sys_exit_group()</div>
         </div>
       </div>
 
