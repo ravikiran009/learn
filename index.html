@@ -431,7 +431,6 @@
   <header>
     <div class="header-container">
       <a href="#" class="brand">⚡ Upskill</a>
-      <span style="font-size:0.75rem; color:var(--text-muted); background:var(--bg-card); padding:0.2rem 0.5rem; border-radius:6px; border:1px solid var(--border);">Mobile Edition</span>
     </div>
   </header>
 
@@ -500,175 +499,16 @@
     <!-- Content Panel -->
     <main class="content">
 
-      <!-- WEEK 1 CONTENT -->
-      <div id="week-1-content" class="week-content">
-        <div class="week-header-banner">
-          <span class="week-badge">MODULE 01</span>
-          <h1>Python Runtime Fundamentals</h1>
-          <p>Complete low-level analysis of CPython execution model, PyObject headers, 3-tier pymalloc, GC trial deletion, vectorcall protocols, generator frame suspension, zero-cost exception tables, and OS kernel interaction.</p>
-        </div>
-
-        <!-- DAY 1 -->
-        <div class="day-card" id="day1">
-          <div class="day-title"><span class="day-tag">Day 1</span> Execution Model, Pipeline, Frames & Scope</div>
-          
-          <h3>1. Source Code to Bytecode Compilation Pipeline</h3>
-          <p>When Python source code (.py) is executed, it passes through four distinct runtime phases:</p>
-          <ul>
-            <li><b>Lexer:</b> Converts raw UTF-8 text into a token stream (<code>Parser/tokenizer.c</code>).</li>
-            <li><b>PEG Parser:</b> Builds Concrete Syntax Tree (CST) & AST (<code>Parser/parser.c</code>).</li>
-            <li><b>Symbol Table:</b> Determines scopes (local, global, cell, free) (<code>Python/symtable.c</code>).</li>
-            <li><b>Bytecode Compiler:</b> Emits 16-bit wordcode instructions into a Code Object (<code>Python/compile.c</code>).</li>
-          </ul>
-
-          <h3>2. Code Objects (<code>PyCodeObject</code>)</h3>
-          <pre><code>struct PyCodeObject {
-    PyObject_HEAD
-    int co_argcount;            /* Positional arguments count */
-    int co_nlocals;             /* Local variables count */
-    int co_stacksize;           /* Evaluation stack max depth */
-    PyObject *co_code;          /* Raw opcode byte sequence */
-    PyObject *co_consts;        /* Tuple of literal constants */
-    PyObject *co_names;         /* Tuple of global/attribute names */
-    PyObject *co_varnames;      /* Tuple of local variable names */
-    PyObject *co_freevars;      /* Tuple of closure free variable names */
-    PyObject *co_cellvars;      /* Tuple of local variables referenced by inner scopes */
-};</code></pre>
-
-          <h3>3. Execution Frames (<code>PyFrameObject</code>)</h3>
-          <pre><code>struct PyFrameObject {
-    PyObject_VAR_HEAD
-    struct PyFrameObject *f_back; /* Linked list pointer to caller frame */
-    PyCodeObject *f_code;         /* Static bytecode instructions pointer */
-    PyObject *f_builtins;         /* Builtins dict */
-    PyObject *f_globals;          /* Globals dict */
-    PyObject *f_locals;           /* Locals dict */
-    PyObject **f_valuestack;      /* Value stack bottom pointer */
-    PyObject *f_localsplus[1];    /* Dynamic array for locals, cells, stack */
-};</code></pre>
-
-          <h3>4. C Stack vs Python Frame Stack</h3>
-          <p>Python evaluation frames are <b>NOT</b> stored on the native OS thread C stack. They are linked-list nodes allocated on the dynamic C-heap. This architectural decoupling enables coroutines and generator frames to pause and remain in memory after C functions return.</p>
-
-          <h3>5. Scope & Name Resolution (LEGB)</h3>
-          <ul>
-            <li><b>Local (L):</b> Direct array indexing into <code>f_localsplus</code> via <code>LOAD_FAST</code> at O(1) speed.</li>
-            <li><b>Enclosing (E):</b> Accesses cell objects (<code>PyCellObject</code>) via <code>LOAD_DEREF</code>.</li>
-            <li><b>Global (G):</b> Hash lookup in <code>f_globals</code> dict via <code>LOAD_GLOBAL</code>.</li>
-            <li><b>Built-in (B):</b> Fallback hash lookup in <code>f_builtins</code> dict.</li>
-          </ul>
-        </div>
-
-        <!-- DAY 2 -->
-        <div class="day-card" id="day2">
-          <div class="day-title"><span class="day-tag">Day 2</span> PyObject, Memory Allocation & Cyclic GC</div>
-
-          <h3>1. The <code>PyObject</code> C Header</h3>
-          <pre><code>typedef struct _object {
-    ssize_t ob_refcnt;           /* 64-bit Reference Count */
-    struct _typeobject *ob_type; /* Pointer to object Type Object */
-} PyObject;</code></pre>
-
-          <h3>2. Three-Tier Memory Allocator (<code>pymalloc</code>)</h3>
-          <div class="diagram">
-[ Tier 3: Python High-Level Application Objects ]
-                     │
-[ Tier 2: PyObject Allocation Layer (PyObject_New) ]
-                     │
-[ Tier 1: Small Object Allocator (pymalloc <= 512 bytes) ]
-        ┌────────────┴────────────┐
-    Arenas (256 KB)         Large Objects (> 512B)
-    └─ Pools (4 KB)         └─ Standard C malloc()
-       └─ Blocks (8-512B)
-                     │
-[ Tier 0: OS Kernel System Allocator (mmap / brk / VirtualAlloc) ]</div>
-
-          <h3>3. Cyclic Garbage Collection (<code>Modules/gcmodule.c</code>)</h3>
-          <p>Containers tracked by GC prepend a <code>PyGC_Head</code> doubly-linked list header, maintaining 3 generational lists (Gen 0, Gen 1, Gen 2) and executing <i>Trial Deletion</i>:</p>
-          <ol>
-            <li>Copies <code>ob_refcnt</code> to temporary <code>gc_refs</code> field for candidate objects.</li>
-            <li>Traverses internal references and decrements <code>gc_refs</code> of target objects.</li>
-            <li>Objects with <code>gc_refs == 0</code> are isolated as unreachable cycles, finalized (<code>tp_finalize</code>), and deallocated.</li>
-          </ol>
-        </div>
-
-        <!-- DAY 3 -->
-        <div class="day-card" id="day3">
-          <div class="day-title"><span class="day-tag">Day 3</span> Parser, AST, Bytecode Wordcode & Name Resolution</div>
-
-          <h3>1. 16-Bit Wordcode Architecture</h3>
-          <p>Instructions consist of 2-byte units (1 byte opcode, 1 byte argument). Large arguments use <code>EXTENDED_ARG</code> prefix instructions.</p>
-
-          <h3>2. Evaluation Loop & Adaptive Opcodes (PEP 659)</h3>
-          <p>In Python 3.11+, <code>PyEval_EvalFrameDefault</code> dynamically transforms generic opcodes like <code>LOAD_GLOBAL</code> into specialized adaptive instructions (<code>LOAD_GLOBAL_MODULE</code> / <code>LOAD_GLOBAL_BUILTIN</code>) to cache dictionary version tags and bypass dictionary hashing.</p>
-        </div>
-
-        <!-- DAY 4 -->
-        <div class="day-card" id="day4">
-          <div class="day-title"><span class="day-tag">Day 4</span> Function Objects, Vectorcall, Closures & Default Args</div>
-
-          <h3>1. Vectorcall Fast-Call Protocol</h3>
-          <p>Replaces traditional tuple/dict creation by passing function arguments as a raw C array pointer (<code>PyObject *const *args</code>), drastically lowering GC pressure.</p>
-
-          <h3>2. Closure Mechanics (<code>PyCellObject</code>)</h3>
-          <p>Free variables shared between outer and inner scopes are wrapped inside heap-allocated <code>PyCellObject</code> instances. When outer execution frames pop, cell objects remain alive as long as inner functions reference them in <code>func_closure</code>.</p>
-
-          <h3>3. Mutable Default Arguments Trap</h3>
-          <p>Default parameters (e.g. <code>def foo(a=[])</code>) are evaluated <b>once</b> at module load time. The list pointer is stored in the function's <code>func_defaults</code> tuple on the heap and reused across all function invocations.</p>
-        </div>
-
-        <!-- DAY 5 -->
-        <div class="day-card" id="day5">
-          <div class="day-title"><span class="day-tag">Day 5</span> Iteration Protocol, Generator Frames & Suspension</div>
-
-          <h3>1. Generator Object Structure (<code>PyGenObject</code>)</h3>
-          <pre><code>typedef struct {
-    PyObject_HEAD
-    PyFrameObject *gi_frame; /* Heap-allocated execution frame */
-    char gi_running;         /* Execution state flag */
-    PyObject *gi_yieldfrom;  /* Pointer to sub-iterator during yield from */
-} PyGenObject;</code></pre>
-
-          <h3>2. Suspension and Resumption</h3>
-          <p>Encountering <code>YIELD_VALUE</code> saves the current instruction offset in <code>gi_frame->f_lasti</code>, sets state to <code>FRAME_SUSPENDED</code>, and returns control to the caller without destroying <code>gi_frame</code> from the C-heap.</p>
-        </div>
-
-        <!-- DAY 6 -->
-        <div class="day-card" id="day6">
-          <div class="day-title"><span class="day-tag">Day 6</span> Context Managers, Zero-Cost Exceptions & Kernel Resources</div>
-
-          <h3>1. Zero-Cost Exception Tables</h3>
-          <p>Python 3.11+ replaces runtime <code>SETUP_WITH</code> block opcodes with static <code>co_exceptiontable</code> mappings, eliminating setup overhead during normal execution paths.</p>
-
-          <h3>2. Kernel File Descriptors & Resource Management</h3>
-          <p>Python file objects wrap OS File Descriptors (integers managed by kernel tables). Omitting <code>with</code> context managers risks leaking file descriptors if objects get trapped in cyclic GC lists, leading to <code>EMFILE</code> errors.</p>
-        </div>
-
-        <!-- DAY 7 -->
-        <div class="day-card" id="day7">
-          <div class="day-title"><span class="day-tag">Day 7</span> End-to-End Program Execution Lifecycle</div>
-
-          <ol>
-            <li><b>OS Kernel Process Initialization:</b> Shell calls <code>execve()</code>, kernel maps binary into Virtual Memory address space (.text, .data, heap, C stack).</li>
-            <li><b>CPython Runtime Bootstrap:</b> <code>main()</code> invokes <code>Py_Initialize()</code>, setting up interpreter state, <code>pymalloc</code>, builtins, and GIL.</li>
-            <li><b>Compilation Phase:</b> Source text $\rightarrow$ Tokens $\rightarrow$ PEG AST $\rightarrow$ Symbol Table $\rightarrow$ <code>PyCodeObject</code>.</li>
-            <li><b>Evaluation Loop Execution:</b> <code>PyEval_EvalFrameDefault()</code> executes bytecode, managing objects via <code>pymalloc</code> and OS system calls.</li>
-            <li><b>Teardown & Exit:</b> <code>Py_FinalizeEx()</code> flushes streams, runs final GC sweep, releases memory, and issues OS <code>exit_group()</code>.</li>
-          </ol>
-        </div>
-      </div>
-
-      <!-- PLACEHOLDER FOR OTHER WEEKS -->
-      <div id="week-placeholder" class="placeholder-card" style="display:none;">
-        <h2 id="placeholder-title">Module Coming Soon</h2>
-        <p id="placeholder-desc">Notes for this week will appear here as you progress through your 12-week upskill curriculum.</p>
+      <!-- Dynamic Content Container -->
+      <div id="content-container">
+        <!-- Content fetched dynamically from week_<N>.html will be injected here -->
       </div>
 
     </main>
   </div>
 
   <footer>
-    <p>Upskill Software & AI Engineering Curriculum • Touch-Optimized Mobile Edition</p>
+    <p>Upskill Software & AI Engineering Curriculum</p>
   </footer>
 
   <script>
@@ -687,7 +527,9 @@
       12: "Week 12: Advanced Synthesis & Capstone"
     };
 
-    function switchWeek(weekNum) {
+    const contentCache = {};
+
+    async function switchWeek(weekNum) {
       weekNum = parseInt(weekNum);
 
       // Update mobile pill highlights
@@ -703,29 +545,90 @@
       const activeNav = document.getElementById('nav-w' + weekNum);
       if (activeNav) activeNav.classList.add('active');
 
-      // Toggle content view
-      const week1Content = document.getElementById('week-1-content');
-      const placeholder = document.getElementById('week-placeholder');
+      const container = document.getElementById('content-container');
+
+      // Check if we already have this week cached
+      if (contentCache[weekNum]) {
+        renderContent(weekNum, contentCache[weekNum]);
+        return;
+      }
+
+      // Show loading indicator
+      container.innerHTML = '<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-weight: 500;">Loading Module Content...</div>';
+
+      try {
+        // Cache-busting fetch to ensure edits to week_N.html reflect immediately
+        const response = await fetch(`week_${weekNum}.html?v=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('File not found');
+        const htmlText = await response.text();
+
+        // Parse fetched HTML string
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        // Extract week content block
+        const weekContent = doc.querySelector('.week-content') || doc.querySelector('main.content') || doc.body;
+
+        if (weekContent) {
+          contentCache[weekNum] = weekContent.innerHTML;
+          renderContent(weekNum, contentCache[weekNum]);
+        } else {
+          throw new Error('Content block not found');
+        }
+      } catch (err) {
+        // Render placeholder if week file is not available
+        renderPlaceholder(weekNum);
+      }
+    }
+
+    function renderContent(weekNum, innerHtml) {
+      const container = document.getElementById('content-container');
       const dayNav = document.getElementById('sidebarDayNav');
       const mobileDayScroller = document.getElementById('mobileDayScroller');
 
+      container.innerHTML = `<div class="week-content">${innerHtml}</div>`;
+
       if (weekNum === 1) {
-        week1Content.style.display = 'block';
-        placeholder.style.display = 'none';
         if (dayNav) dayNav.style.display = 'block';
         if (mobileDayScroller) mobileDayScroller.style.display = 'flex';
       } else {
-        week1Content.style.display = 'none';
-        placeholder.style.display = 'block';
         if (dayNav) dayNav.style.display = 'none';
         if (mobileDayScroller) mobileDayScroller.style.display = 'none';
-
-        document.getElementById('placeholder-title').innerText = weekTitles[weekNum] || "Module Coming Soon";
-        document.getElementById('placeholder-desc').innerText = `Notes and deep dives for ${weekTitles[weekNum]} will be published as you complete this module.`;
       }
+
+      // Scroll to hash target if provided (e.g. #day1)
+      if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderPlaceholder(weekNum) {
+      const container = document.getElementById('content-container');
+      const dayNav = document.getElementById('sidebarDayNav');
+      const mobileDayScroller = document.getElementById('mobileDayScroller');
+
+      if (dayNav) dayNav.style.display = 'none';
+      if (mobileDayScroller) mobileDayScroller.style.display = 'none';
+
+      container.innerHTML = `
+        <div class="placeholder-card">
+          <h2>${weekTitles[weekNum] || "Module Coming Soon"}</h2>
+          <p>Notes and deep dives for ${weekTitles[weekNum] || "this week"} will be published as you complete this module.</p>
+        </div>
+      `;
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // Load Week 1 by default on load
+    document.addEventListener('DOMContentLoaded', () => {
+      switchWeek(1);
+    });
   </script>
 </body>
 </html>
