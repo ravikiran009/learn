@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Upskill</title>
+  <title>⚡ Upskill SDE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -134,7 +134,7 @@
       border: 1px solid rgba(56, 189, 248, 0.25);
       padding: 0.25rem 0.65rem;
       border-radius: 6px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 600;
       text-decoration: none;
       flex-shrink: 0;
@@ -346,7 +346,7 @@
     code {
       font-family: 'Fira Code', monospace;
       background: rgba(255, 255, 255, 0.08);
-      color: var(--accent);
+      color: #38bdf8;
       padding: 0.1rem 0.35rem;
       border-radius: 4px;
       font-size: 0.82em;
@@ -407,17 +407,6 @@
       font-weight: 600;
     }
 
-    .output-box {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.8rem;
-      color: #34d399;
-      margin: 0.5rem 0 1rem 0;
-    }
-
     .placeholder-card {
       text-align: center;
       padding: 2.5rem 1rem;
@@ -441,27 +430,22 @@
       background: var(--bg-sidebar);
     }
 
-    /* Mobile Enhancements (<768px) */
     @media (max-width: 768px) {
       .app-container {
         padding: 0.85rem 0.65rem 3rem 0.65rem;
       }
-      
       .day-card {
         padding: 1rem 0.85rem;
         border-radius: 10px;
         margin-bottom: 1.15rem;
       }
-
       .week-header-banner {
         padding: 1rem 0.85rem;
         border-radius: 10px;
       }
-
       .week-header-banner h1 {
         font-size: 1.2rem;
       }
-
       pre {
         padding: 0.75rem;
         border-radius: 6px;
@@ -474,7 +458,7 @@
   <!-- Top Sticky Header -->
   <header>
     <div class="header-container">
-      <a href="#" class="brand">⚡ Upskill</a>
+      <a href="index.html" class="brand">⚡ Upskill</a>
     </div>
   </header>
 
@@ -494,6 +478,16 @@
     <div class="week-pill" onclick="switchWeek(12)" id="pill-w12">Week 12</div>
   </div>
 
+  <!-- Horizontal Day Quick Jump for Mobile -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day1" class="day-pill">Day 1: Execution</a>
+    <a href="#day2" class="day-pill">Day 2: PyObject</a>
+    <a href="#day3" class="day-pill">Day 3: Bytecode</a>
+    <a href="#day4" class="day-pill">Day 4: Functions</a>
+    <a href="#day5" class="day-pill">Day 5: Iterators</a>
+    <a href="#day6" class="day-pill">Day 6: Context</a>
+    <a href="#day7" class="day-pill">Day 7: Lifecycle</a>
+  </div>
 
   <!-- App Layout -->
   <div class="app-container">
@@ -518,13 +512,13 @@
 
       <div id="sidebarDayNav" style="display:block;">
         <h3>Jump to Topic</h3>
-        <ul class="day-nav">
-          <li><a href="#day1">Day 1: Execution & Frames</a></li>
-          <li><a href="#day2">Day 2: PyObject & Memory</a></li>
-          <li><a href="#day3">Day 3: Parser, AST & Opcodes</a></li>
-          <li><a href="#day4">Day 4: Functions & Closures</a></li>
-          <li><a href="#day5">Day 5: Iterators & Generators</a></li>
-          <li><a href="#day6">Day 6: Context Managers & OS</a></li>
+        <ul class="day-nav" id="sidebarDayNavList">
+          <li><a href="#day1">Day 1: Execution &amp; Frames</a></li>
+          <li><a href="#day2">Day 2: PyObject &amp; Memory</a></li>
+          <li><a href="#day3">Day 3: Parser, AST &amp; Opcodes</a></li>
+          <li><a href="#day4">Day 4: Functions &amp; Closures</a></li>
+          <li><a href="#day5">Day 5: Iterators &amp; Generators</a></li>
+          <li><a href="#day6">Day 6: Context Managers &amp; OS</a></li>
           <li><a href="#day7">Day 7: End-to-End Lifecycle</a></li>
         </ul>
       </div>
@@ -532,17 +526,15 @@
 
     <!-- Content Panel -->
     <main class="content">
-
       <!-- Dynamic Content Container -->
       <div id="content-container">
         <!-- Content fetched dynamically from week_<N>.html will be injected here -->
       </div>
-
     </main>
   </div>
 
   <footer>
-    <p>Upskill Software & AI Engineering Curriculum</p>
+    <p>Upskill Software &amp; AI Engineering Curriculum</p>
   </footer>
 
   <script>
@@ -581,56 +573,58 @@
 
       const container = document.getElementById('content-container');
 
-      // Check if we already have this week cached
+      // Check cache
       if (contentCache[weekNum]) {
-        renderContent(weekNum, contentCache[weekNum]);
+        renderContent(weekNum, contentCache[weekNum].html, contentCache[weekNum].dayScroller, contentCache[weekNum].sidebarNav);
         return;
       }
 
-      // Show loading indicator
+      // Loading state
       container.innerHTML = '<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-weight: 500;">Loading Module Content...</div>';
 
       try {
-        // Cache-busting fetch to ensure edits to week_N.html reflect immediately
         const response = await fetch(`week_${weekNum}.html?v=${Date.now()}`, { cache: 'no-store' });
         if (!response.ok) throw new Error('File not found');
         const htmlText = await response.text();
 
-        // Parse fetched HTML string
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, 'text/html');
 
-        // Extract week content block
         const weekContent = doc.querySelector('.week-content') || doc.querySelector('main.content') || doc.body;
+        const fetchedDayScroller = doc.querySelector('#mobileDayScroller');
+        const fetchedSidebarNav = doc.querySelector('#sidebarDayNav');
 
         if (weekContent) {
-          contentCache[weekNum] = weekContent.innerHTML;
-          renderContent(weekNum, contentCache[weekNum]);
+          contentCache[weekNum] = {
+            html: weekContent.innerHTML,
+            dayScroller: fetchedDayScroller ? fetchedDayScroller.innerHTML : null,
+            sidebarNav: fetchedSidebarNav ? fetchedSidebarNav.innerHTML : null
+          };
+          renderContent(weekNum, contentCache[weekNum].html, contentCache[weekNum].dayScroller, contentCache[weekNum].sidebarNav);
         } else {
           throw new Error('Content block not found');
         }
       } catch (err) {
-        // Render placeholder if week file is not available
         renderPlaceholder(weekNum);
       }
     }
 
-    function renderContent(weekNum, innerHtml) {
+    function renderContent(weekNum, innerHtml, dayScrollerHtml, sidebarNavHtml) {
       const container = document.getElementById('content-container');
       const dayNav = document.getElementById('sidebarDayNav');
       const mobileDayScroller = document.getElementById('mobileDayScroller');
 
       container.innerHTML = `<div class="week-content">${innerHtml}</div>`;
 
-      if (weekNum === 1) {
-        if (dayNav) dayNav.style.display = 'block';
-        if (mobileDayScroller) mobileDayScroller.style.display = 'flex';
-      } else {
-        if (dayNav) dayNav.style.display = 'none';
-        if (mobileDayScroller) mobileDayScroller.style.display = 'none';
+      if (dayScrollerHtml && mobileDayScroller) {
+        mobileDayScroller.innerHTML = dayScrollerHtml;
+        mobileDayScroller.style.display = 'flex';
+      }
+      if (sidebarNavHtml && dayNav) {
+        dayNav.innerHTML = sidebarNavHtml;
+        dayNav.style.display = 'block';
       }
 
-      // Scroll to hash target if provided (e.g. #day1)
       if (window.location.hash) {
         const target = document.querySelector(window.location.hash);
         if (target) {
@@ -659,7 +653,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Load Week 1 by default on load
     document.addEventListener('DOMContentLoaded', () => {
       switchWeek(1);
     });
