@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Week 2: Python Internals | Upskill SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-main: #0b0f19; --bg-sidebar: #111827; --bg-card: #1f2937; --bg-code: #030712; --border: #374151; --text-main: #f9fafb; --text-muted: #9ca3af; --accent: #a855f7; --accent-glow: rgba(168, 85, 247, 0.2); --accent-gradient: linear-gradient(135deg, #a855f7, #818cf8); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    header { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { font-weight: 800; font-size: 1.15rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .mobile-week-scroller { background: var(--bg-sidebar); border-bottom: 1px solid var(--border); padding: 0.6rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.5rem; scrollbar-width: none; }
+    .mobile-week-scroller::-webkit-scrollbar { display: none; }
+    .week-pill { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .week-pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+    .mobile-day-scroller { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.4rem; scrollbar-width: none; }
+    .mobile-day-scroller::-webkit-scrollbar { display: none; }
+    .day-pill { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(168, 85, 247, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+    .app-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex: 1; gap: 1.5rem; padding: 1.25rem 1rem 4rem 1rem; }
+    aside.sidebar { width: 260px; flex-shrink: 0; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; height: fit-content; position: sticky; top: 4.5rem; display: none; }
+    @media (min-width: 900px) { aside.sidebar { display: block; } }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .week-nav { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.5rem; }
+    .week-nav-item { padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+    .week-nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(168, 85, 247, 0.3); font-weight: 600; }
+    .day-nav { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .day-nav a { color: var(--text-muted); font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; }
+    .day-nav a:hover { color: var(--accent); }
+    main.content { flex: 1; min-width: 0; }
+    .week-header-banner { background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .week-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(168, 85, 247, 0.3); padding: 0.15rem 0.5rem; border-radius: 9999px; margin-bottom: 0.4rem; }
+    .week-header-banner h1 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .week-header-banner p { color: var(--text-muted); font-size: 0.88rem; }
+    .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .day-title { font-size: 1.15rem; font-weight: 700; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .day-title span.day-tag { color: var(--accent); }
+    h3 { font-size: 0.98rem; color: var(--accent); margin: 1.1rem 0 0.4rem 0; }
+    p { color: #e5e7eb; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.55; }
+    ul, ol { color: #e5e7eb; padding-left: 1.1rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
+    pre { background: var(--bg-code); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.85rem; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #e5e7eb; margin: 0.85rem 0; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); color: #38bdf8; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; }
+    .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+    .summary-table th, .summary-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+    .summary-table th { background: rgba(168, 85, 247, 0.1); color: var(--accent); }
+    .diagram { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.85rem; border-radius: 0 8px 8px 0; font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #38bdf8; white-space: pre; overflow-x: auto; margin: 0.8rem 0; }
+    .qa-box { background: rgba(31, 41, 55, 0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .qa-q { font-weight: 700; color: #fff; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .qa-a { color: #d1d5db; font-size: 0.88rem; line-height: 1.5; }
+    .experiment-list { list-style: none; padding-left: 0; }
+    .experiment-list li { position: relative; padding-left: 1.5rem; margin-bottom: 0.6rem; color: #e5e7eb; font-size: 0.88rem; }
+    .experiment-list li::before { content: "□"; position: absolute; left: 0; color: var(--accent); font-weight: bold; }
+    .week-nav-btns { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
+    .btn-nav { padding: 0.65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+    .btn-nav:hover { border-color: #38bdf8; color: #38bdf8; }
+    footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); background: var(--bg-sidebar); }
+  </style>
+</head>
+<body>
+  <header><div class="header-container"><a href="index.html" class="brand">⚡ Upskill</a></div></header>
+  
+  <div class="mobile-week-scroller">
+    <a href="week_1.html" class="week-pill">Week 1</a>
+    <a href="week_2.html" class="week-pill active">Week 2</a>
+    <a href="week_3.html" class="week-pill">Week 3</a>
+    <a href="week_4.html" class="week-pill">Week 4</a>
+    <a href="week_5.html" class="week-pill">Week 5</a>
+    <a href="week_6.html" class="week-pill">Week 6</a>
+    <a href="week_7.html" class="week-pill">Week 7</a>
+    <a href="week_8.html" class="week-pill">Week 8</a>
+    <a href="week_9.html" class="week-pill">Week 9</a>
+    <a href="week_10.html" class="week-pill">Week 10</a>
+    <a href="week_11.html" class="week-pill">Week 11</a>
+    <a href="week_12.html" class="week-pill">Week 12</a>
+  </div>
+
+  <!-- Daywise Horizontal Quick Jump Bar -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day8" class="day-pill">Day 8: Reference Cycles</a>
+    <a href="#day9" class="day-pill">Day 9: Descriptors</a>
+    <a href="#day10" class="day-pill">Day 10: __slots__</a>
+    <a href="#day11" class="day-pill">Day 11: Metaclasses</a>
+    <a href="#day12" class="day-pill">Day 12: Import System</a>
+    <a href="#day13" class="day-pill">Day 13: Introspection</a>
+    <a href="#day14" class="day-pill">Day 14: Inspector Project</a>
+  </div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <h3>Curriculum Modules</h3>
+      <ul class="week-nav">
+        <a href="week_1.html" class="week-nav-item"><span>Week 1: Runtime</span></a>
+        <a href="week_2.html" class="week-nav-item active"><span>Week 2: Internals</span> <span>✓</span></a>
+        <a href="week_3.html" class="week-nav-item"><span>Week 3: OS & Kernel</span></a>
+        <a href="week_4.html" class="week-nav-item"><span>Week 4: Networking</span></a>
+        <a href="week_5.html" class="week-nav-item"><span>Week 5: SQL & Storage</span></a>
+        <a href="week_6.html" class="week-nav-item"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item"><span>Week 7: Backend</span></a>
+        <a href="week_8.html" class="week-nav-item"><span>Week 8: Containers & Cloud</span></a>
+        <a href="week_9.html" class="week-nav-item"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item"><span>Week 12: Advanced</span></a>
+      </ul>
+      <div id="sidebarDayNav">
+        <h3>Jump to Topic</h3>
+        <ul class="day-nav">
+          <li><a href="#day8">Day 8: Reference Cycles</a></li>
+          <li><a href="#day9">Day 9: Descriptors &amp; MRO</a></li>
+          <li><a href="#day10">Day 10: __slots__ &amp; Memory</a></li>
+          <li><a href="#day11">Day 11: Metaclasses &amp; __new__</a></li>
+          <li><a href="#day12">Day 12: Import Pipeline</a></li>
+          <li><a href="#day13">Day 13: Introspection &amp; Patches</a></li>
+          <li><a href="#day14">Day 14: Object Inspector Tool</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="week-header-banner">
+        <span class="week-badge">MODULE 02</span>
+        <h1>Python Internals</h1>
+        <p>Reference cycles, 3-generational mark-and-sweep GC, weak references, descriptor lookup priority, __slots__ memory layout, metaclasses, import system internals, introspection, and bytecode inspection.</p>
+      </div>
+
+      <!-- DAY 8 -->
+      <div class="day-card" id="day8">
+        <div class="day-title"><span class="day-tag">Day 8</span> Reference Cycles, Generational GC &amp; Weak References</div>
+        
+        <h3>8.1 Reference Cycles — Why They Matter</h3>
+        <p>A reference cycle occurs when a chain of objects references back to itself. Reference counting alone <strong>cannot</strong> collect cycles because <code>ob_refcnt</code> never drops to zero.</p>
+        <pre><code class="python"># 1. Self-referential object
+lst = []
+lst.append(lst)   # lst.refcount = 2; del lst -> refcount = 1 (leaked!)
+
+# 2. Mutual reference
+class Node:
+    def __init__(self, val): 
+        self.val = val
+        self.child = None
+
+a = Node(1); b = Node(2)
+a.child = b; b.child = a   # Reference cycle!
+
+# 3. Function closures creating cycles
+def make():
+    x = []
+    def inner(): return x   # inner holds reference to x via closure cell
+    x.append(inner)         # x holds reference to inner -> cycle</code></pre>
+        <p>To detect leaking cycles during testing:</p>
+        <pre><code class="python">import gc
+gc.set_debug(gc.DEBUG_LEAK)
+gc.collect()   # force collection and print leaked objects</code></pre>
+
+        <h3>8.2 Generational Garbage Collection</h3>
+        <p>Python's cyclic GC divides all tracked container objects into 3 generations based on age:</p>
+        <ul>
+          <li><strong>Gen 0:</strong> Newly allocated objects (default allocation threshold: 700)</li>
+          <li><strong>Gen 1:</strong> Survived at least 1 Gen 0 collection sweep (threshold: 10)</li>
+          <li><strong>Gen 2:</strong> Long-lived objects (threshold: 10)</li>
+        </ul>
+        <p><strong>Simplified Mark-and-Sweep Algorithm:</strong></p>
+        <ol>
+          <li>For each object in the set being collected, copy <code>ob_refcnt</code> into <code>gc_refs</code>.</li>
+          <li>For every object, subtract 1 from <code>gc_refs</code> for each pointer it holds to another object in the candidate set.</li>
+          <li>If an object's <code>gc_refs</code> hits 0, it is tentatively marked as candidate garbage.</li>
+          <li>If an object in the candidate set is reachable from outside the candidate set (its <code>gc_refs &gt; 0</code>), promote it and resurrect all objects reachable from it.</li>
+          <li>Finalize and deallocate confirmed garbage objects.</li>
+        </ol>
+        <pre><code class="python">import gc
+print(gc.get_threshold())      # (700, 10, 10)
+print(gc.get_count())          # current (count0, count1, count2)
+gc.collect(generation=2)        # force full collection of all generations</code></pre>
+
+        <h3>8.3 Weak References &amp; Finalizers</h3>
+        <p>A weak reference (<code>weakref.ref</code>) allows accessing an object without incrementing its <code>ob_refcnt</code>. When the target object is collected, the weak reference evaluates to <code>None</code>.</p>
+        <pre><code class="python">import weakref
+
+class CacheObject:
+    def __init__(self, name): self.name = name
+
+obj = CacheObject("data")
+ref = weakref.ref(obj)
+
+print(ref())   # <CacheObject 'data'>
+del obj
+print(ref())   # None (object was garbage collected!)
+
+# Weak reference dictionaries:
+cache = weakref.WeakValueDictionary()
+cache['key'] = CacheObject("expensive")  # collected automatically when no other strong refs exist
+
+# Safe cleanup callback with weakref.finalize:
+def cleanup(name):
+    print(f"Cleaned up resource {name}")
+
+target = CacheObject("db_conn")
+weakref.finalize(target, cleanup, target.name)
+del target    # Triggers cleanup("db_conn") without reference cycle!</code></pre>
+      </div>
+
+      <!-- DAY 9 -->
+      <div class="day-card" id="day9">
+        <div class="day-title"><span class="day-tag">Day 9</span> Descriptors, __get__, Properties &amp; Attribute Lookup Order</div>
+        
+        <h3>9.1 The Descriptor Protocol</h3>
+        <p>A descriptor is an object that controls attribute access by defining one or more of <code>__get__</code>, <code>__set__</code>, or <code>__delete__</code>.</p>
+        <ul>
+          <li><strong>Non-Data Descriptor:</strong> Defines only <code>__get__</code> (e.g. standard Python functions/methods).</li>
+          <li><strong>Data Descriptor:</strong> Defines <code>__get__</code> AND <code>__set__</code> (or <code>__delete__</code>) (e.g. <code>property</code>).</li>
+        </ul>
+
+        <h3>9.2 Complete Attribute Lookup Order</h3>
+        <p>When you evaluate <code>obj.attr</code>, Python evaluates attributes in strict priority:</p>
+        <ol>
+          <li>Search <code>type(obj).__mro__</code> for a <strong>Data Descriptor</strong> matching <code>attr</code>. If found, call its <code>__get__</code>.</li>
+          <li>Check instance dictionary <code>obj.__dict__['attr']</code>. If found, return value.</li>
+          <li>Search <code>type(obj).__mro__</code> for a <strong>Non-Data Descriptor</strong> or class attribute. If a non-data descriptor is found, call its <code>__get__</code>.</li>
+          <li>If <code>__getattr__</code> is defined on the class, call <code>obj.__getattr__('attr')</code> as fallback.</li>
+          <li>Otherwise, raise <code>AttributeError</code>.</li>
+        </ol>
+        <div class="diagram">CRITICAL RULE: Data Descriptors OVERRIDE Instance __dict__!
+Instance __dict__ OVERRIDES Non-Data Descriptors!</div>
+        <pre><code class="python">class DataDesc:
+    def __get__(self, obj, typ=None): return "DataDesc WINS"
+    def __set__(self, obj, val): pass  # Makes it a data descriptor!
+
+class NonDataDesc:
+    def __get__(self, obj, typ=None): return "NonDataDesc"
+
+class Example:
+    d = DataDesc()
+    nd = NonDataDesc()
+
+e = Example()
+e.__dict__['d'] = "Instance Val"
+e.__dict__['nd'] = "Instance Val"
+
+print(e.d)   # "DataDesc WINS" (Data descriptor beats __dict__)
+print(e.nd)  # "Instance Val" (Instance __dict__ beats non-data descriptor)</code></pre>
+
+        <h3>9.3 Properties &amp; Custom Descriptor Validation</h3>
+        <pre><code class="python">class ValidatedPositive:
+    def __set_name__(self, owner, name):
+        self.name = name   # Auto-captures variable name at class creation!
+
+    def __get__(self, instance, owner):
+        if instance is None: return self
+        return instance.__dict__.get(self.name, 0)
+
+    def __set__(self, instance, value):
+        if value <= 0:
+            raise ValueError(f"{self.name} must be positive!")
+        instance.__dict__[self.name] = value
+
+class Product:
+    price = ValidatedPositive()
+    quantity = ValidatedPositive()
+
+p = Product()
+p.price = 100     # OK
+# p.price = -10   # Raises ValueError: price must be positive!</code></pre>
+
+        <h3>9.4 Functions are Descriptors</h3>
+        <p>In Python, regular functions are non-data descriptors! Accessing a function from an instance calls its <code>__get__(instance, class)</code>, which returns a <code>PyMethodObject</code> (bound method) that automatically passes <code>self</code> as the first argument!</p>
+      </div>
+
+      <!-- DAY 10 -->
+      <div class="day-card" id="day10">
+        <div class="day-title"><span class="day-tag">Day 10</span> Classes, Dataclasses, __slots__ &amp; Memory Tradeoffs</div>
+        
+        <h3>10.1 Class Creation &amp; Instance __dict__ Overhead</h3>
+        <p>By default, every Python instance allocates an instance <code>__dict__</code> to store dynamic attributes. A standard empty class instance consumes ~232 bytes due to dictionary hash table overhead.</p>
+
+        <h3>10.2 __slots__ Optimization</h3>
+        <p><code>__slots__</code> instructs CPython to allocate a fixed-size C array of pointers instead of a dynamic <code>__dict__</code>, saving 3–4x memory per instance.</p>
+        <pre><code class="python">class PointSlots:
+    __slots__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = PointSlots(10, 20)
+# p.__dict__  -> AttributeError!
+# p.z = 30    -> AttributeError! (Prevents adding undeclared attributes)</code></pre>
+
+        <h3>10.3 Dataclasses (Python 3.7+) &amp; slots=True</h3>
+        <pre><code class="python">from dataclasses import dataclass, field
+
+@dataclass(slots=True, frozen=True)
+class Coordinate:
+    latitude: float
+    longitude: float
+    metadata: list = field(default_factory=list, repr=False, compare=False)</code></pre>
+
+        <h3>10.4 Memory &amp; Feature Comparison Table</h3>
+        <table class="summary-table">
+          <thead>
+            <tr><th>Feature</th><th>dict</th><th>Standard Class</th><th>dataclass</th><th>namedtuple</th><th>__slots__ Class</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Mutable</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+            <tr><td>Memory Footprint</td><td>High</td><td>High (~232 B)</td><td>High (~232 B)*</td><td>Low (~56 B)</td><td>Low (~56 B)</td></tr>
+            <tr><td>Type Hints</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Auto __repr__/__eq__</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+            <tr><td>Slots Support</td><td>N/A</td><td>Manual</td><td>slots=True (3.10+)</td><td>Built-in</td><td>Native</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DAY 11 -->
+      <div class="day-card" id="day11">
+        <div class="day-title"><span class="day-tag">Day 11</span> Metaclasses, Class Creation, __new__ &amp; __init_subclass__</div>
+        
+        <h3>11.1 What is a Metaclass?</h3>
+        <p>A metaclass is a class whose instances are classes. In Python, <code>type</code> is the default metaclass of all classes. Class creation flow:</p>
+        <div class="diagram">1. Metaclass __prepare__(name, bases) -> returns namespace dictionary
+2. Execute class body inside namespace dictionary
+3. Metaclass __new__(mcs, name, bases, namespace) -> allocates PyTypeObject
+4. Metaclass __init__(cls, name, bases, namespace) -> initializes class</div>
+
+        <h3>11.2 Metaclass Enforcement &amp; Singleton Pattern</h3>
+        <pre><code class="python">class StrictMeta(type):
+    def __new__(mcs, name, bases, namespace):
+        for key, val in namespace.items():
+            if callable(val) and not key.startswith("__") and not val.__doc__:
+                raise TypeError(f"Method '{name}.{key}' must have a docstring!")
+        return super().__new__(mcs, name, bases, namespace)
+
+class SingletonMeta(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class DatabaseConnection(metaclass=SingletonMeta):
+    def __init__(self): self.connected = True
+
+db1 = DatabaseConnection()
+db2 = DatabaseConnection()
+print(db1 is db2)  # True</code></pre>
+
+        <h3>11.3 __new__ vs __init__ &amp; __init_subclass__</h3>
+        <pre><code class="python"># __new__ creates the instance; __init__ initializes it
+class PositiveInt(int):
+    def __new__(cls, value):
+        if value <= 0: raise ValueError("Must be positive")
+        return super().__new__(cls, value)
+
+# __init_subclass__ as a clean plugin registration pattern (no metaclass required!)
+class PluginBase:
+    registry = {}
+    def __init_subclass__(cls, plugin_type=None, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if plugin_type:
+            cls.registry[plugin_type] = cls
+
+class CSVPlugin(PluginBase, plugin_type="csv"): pass
+class JSONPlugin(PluginBase, plugin_type="json"): pass
+print(PluginBase.registry)  # {'csv': <class 'CSVPlugin'>, 'json': <class 'JSONPlugin'>}</code></pre>
+      </div>
+
+      <!-- DAY 12 -->
+      <div class="day-card" id="day12">
+        <div class="day-title"><span class="day-tag">Day 12</span> Import System, Module Loading, Circular Imports &amp; importlib</div>
+        
+        <h3>12.1 How Import Works</h3>
+        <p>Executing <code>import foo</code> follows this pipeline:</p>
+        <ol>
+          <li>Check <code>sys.modules['foo']</code> (cached module table). If hit, return immediately.</li>
+          <li>Iterate over finders in <code>sys.meta_path</code> (e.g. <code>BuiltinImporter</code>, <code>PathFinder</code>) to get a module spec.</li>
+          <li>Call loader from spec to create the module object and insert it into <code>sys.modules</code>.</li>
+          <li>Execute the module bytecode inside the module's namespace.</li>
+          <li>Bind module variable in importing scope.</li>
+        </ol>
+
+        <h3>12.2 Circular Imports &amp; Solutions</h3>
+        <p>Circular imports occur when <code>a.py</code> imports <code>b.py</code> while <code>b.py</code> imports <code>a.py</code>. Because <code>sys.modules</code> holds a partial module object before code execution completes, accessing unexecuted names causes an <code>ImportError</code>.</p>
+        <ul>
+          <li><strong>Solution 1:</strong> Refactor shared dependencies into a separate module (e.g. <code>common.py</code>).</li>
+          <li><strong>Solution 2:</strong> Deferred import — move <code>import</code> inside function bodies.</li>
+          <li><strong>Solution 3:</strong> Import the module object (<code>import a</code>) instead of importing names directly (<code>from a import foo</code>).</li>
+        </ul>
+
+        <h3>12.3 Programmatic Imports with importlib</h3>
+        <pre><code class="python">import importlib
+
+# Dynamic module loading:
+math_mod = importlib.import_module("math")
+print(math_mod.sqrt(16))  # 4.0
+
+# Module reloading:
+importlib.reload(math_mod)</code></pre>
+      </div>
+
+      <!-- DAY 13 -->
+      <div class="day-card" id="day13">
+        <div class="day-title"><span class="day-tag">Day 13</span> Introspection, Reflection, Monkey Patching &amp; Runtime Modifications</div>
+        
+        <h3>13.1 Introspection &amp; inspect Module</h3>
+        <pre><code class="python">import inspect
+
+def target_func(a: int, b: str = "default") -> bool:
+    """Sample docstring."""
+    return True
+
+sig = inspect.signature(target_func)
+print(sig.parameters)   # OrderedDict([('a', <Parameter "a: int">), ...])
+print(inspect.getsource(target_func))  # Prints function source code!</code></pre>
+
+        <h3>13.2 Reflection &amp; Dynamic Dispatch</h3>
+        <pre><code class="python">class RequestHandler:
+    def handle_get(self): return "Handling GET"
+    def handle_post(self): return "Handling POST"
+
+handler = RequestHandler()
+method_name = f"handle_{'get'.lower()}"
+method = getattr(handler, method_name, None)
+if callable(method):
+    print(method())   # "Handling GET"</code></pre>
+
+        <h3>13.3 Monkey Patching &amp; unittest.mock</h3>
+        <pre><code class="python">import json
+original_dumps = json.dumps
+
+# Monkey patch json.dumps to default indent=2
+def pretty_dumps(*args, **kwargs):
+    kwargs.setdefault('indent', 2)
+    return original_dumps(*args, **kwargs)
+
+json.dumps = pretty_dumps
+print(json.dumps({"a": 1}))  # Formatted with indent=2!
+json.dumps = original_dumps   # Restore original!</code></pre>
+
+        <h3>13.4 __getattr__ vs __getattribute__</h3>
+        <ul>
+          <li><code>__getattr__(self, name)</code>: Fallback hook. Called <strong>only</strong> when <code>name</code> is NOT found in <code>__dict__</code> or class hierarchy.</li>
+          <li><code>__getattribute__(self, name)</code>: Called for <strong>every single</strong> attribute access. Must use <code>super().__getattribute__(name)</code> to avoid infinite recursion!</li>
+        </ul>
+      </div>
+
+      <!-- DAY 14 -->
+      <div class="day-card" id="day14">
+        <div class="day-title"><span class="day-tag">Day 14</span> Review — Build an Introspection/Bytecode Inspection Tool</div>
+        
+        <h3>14.1 Project: Object Inspector Tool</h3>
+        <pre><code class="python">import inspect, dis, sys
+
+def inspect_object(obj):
+    cls = type(obj)
+    print("=" * 60)
+    print(f"OBJECT INSPECTOR REPORT FOR: {obj}")
+    print("=" * 60)
+    print(f"Type        : {cls.__name__}")
+    print(f"MRO         : {[c.__name__ for c in cls.__mro__]}")
+    print(f"Memory Size : {sys.getsizeof(obj)} bytes")
+
+    if hasattr(obj, '__slots__'):
+        print(f"Slots       : {obj.__slots__}")
+    elif hasattr(obj, '__dict__'):
+        print(f"Instance Dict: {list(obj.__dict__.keys())}")
+
+    if callable(obj):
+        try:
+            print(f"Signature   : {inspect.signature(obj)}")
+        except ValueError:
+            pass
+        if hasattr(obj, '__closure__') and obj.__closure__:
+            print("Closure Vars:")
+            for cell, freevar in zip(obj.__closure__, obj.__code__.co_freevars):
+                print(f"  {freevar} = {cell.cell_contents}")
+        print("\n--- Bytecode Disassembly ---")
+        dis.dis(obj)
+
+# Test run:
+def sample_closure(multiplier):
+    def inner(val):
+        return val * multiplier
+    return inner
+
+fn = sample_closure(5)
+inspect_object(fn)</code></pre>
+
+        <h3>14.2 Week 2 Interview Q&amp;A</h3>
+        <div class="qa-box">
+          <div class="qa-q">Q: How does Python's attribute lookup order work with descriptors?</div>
+          <div class="qa-a">A: Python checks in order: (1) Data Descriptors in class MRO, (2) Instance <code>__dict__</code>, (3) Non-Data Descriptors and class attributes in MRO, (4) <code>__getattr__</code> fallback.</div>
+        </div>
+        <div class="qa-box">
+          <div class="qa-q">Q: When would you use __slots__ over standard classes?</div>
+          <div class="qa-a">A: When instantiating millions of small objects (like ORM rows, geometric vectors, or network packets) where the <code>__dict__</code> memory overhead would cause performance degradation or OOM issues.</div>
+        </div>
+        <div class="qa-box">
+          <div class="qa-q">Q: What is the difference between __new__ and __init__?</div>
+          <div class="qa-a">A: <code>__new__</code> is the static constructor that allocates and returns the object instance in memory. <code>__init__</code> is the initializer that sets instance attributes. Subclassing immutable types (like <code>int</code>, <code>str</code>, <code>tuple</code>) requires overriding <code>__new__</code>.</div>
+        </div>
+
+        <h3>14.3 Recommended Experiments Checklist</h3>
+        <ul class="experiment-list">
+          <li>Write a descriptor that validates numeric range for properties.</li>
+          <li>Build a plugin registry using <code>__init_subclass__</code> without metaclasses.</li>
+          <li>Create a metaclass that logs execution time for all class methods.</li>
+          <li>Deliberately create a cyclic reference and inspect it with <code>gc.get_referrers()</code>.</li>
+          <li>Benchmark memory usage of 1 million instances: regular class vs <code>__slots__</code> vs <code>namedtuple</code>.</li>
+        </ul>
+      </div>
+    </main>
+  </div>
+
+  <div class="week-nav-btns">
+    <a href="week_1.html" class="btn-nav">← Week 1: Runtime</a>
+    <a href="week_3.html" class="btn-nav">Week 3: OS & Kernel →</a>
+  </div>
+
+  <footer><p>Week 2 of 12 · Python Internals · High-Paid SDE Upskill Program</p></footer>
+</body>
+</html>

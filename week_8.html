@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Week 8: Containers &amp; Cloud | Upskill SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-main: #0b0f19; --bg-sidebar: #111827; --bg-card: #1f2937; --bg-code: #030712; --border: #374151; --text-main: #f9fafb; --text-muted: #9ca3af; --accent: #f97316; --accent-glow: rgba(249, 115, 22, 0.2); --accent-gradient: linear-gradient(135deg, #f97316, #ea580c); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    header { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { font-weight: 800; font-size: 1.15rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .mobile-week-scroller { background: var(--bg-sidebar); border-bottom: 1px solid var(--border); padding: 0.6rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.5rem; scrollbar-width: none; }
+    .mobile-week-scroller::-webkit-scrollbar { display: none; }
+    .week-pill { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .week-pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+    .mobile-day-scroller { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.4rem; scrollbar-width: none; }
+    .mobile-day-scroller::-webkit-scrollbar { display: none; }
+    .day-pill { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(249, 115, 22, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+    .app-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex: 1; gap: 1.5rem; padding: 1.25rem 1rem 4rem 1rem; }
+    aside.sidebar { width: 260px; flex-shrink: 0; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; height: fit-content; position: sticky; top: 4.5rem; display: none; }
+    @media (min-width: 900px) { aside.sidebar { display: block; } }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .week-nav { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.5rem; }
+    .week-nav-item { padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+    .week-nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(249, 115, 22, 0.3); font-weight: 600; }
+    .day-nav { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .day-nav a { color: var(--text-muted); font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; }
+    .day-nav a:hover { color: var(--accent); }
+    main.content { flex: 1; min-width: 0; }
+    .week-header-banner { background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .week-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(249, 115, 22, 0.3); padding: 0.15rem 0.5rem; border-radius: 9999px; margin-bottom: 0.4rem; }
+    .week-header-banner h1 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .week-header-banner p { color: var(--text-muted); font-size: 0.88rem; }
+    .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .day-title { font-size: 1.15rem; font-weight: 700; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .day-title span.day-tag { color: var(--accent); }
+    h3 { font-size: 0.98rem; color: var(--accent); margin: 1.1rem 0 0.4rem 0; }
+    p { color: #e5e7eb; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.55; }
+    ul, ol { color: #e5e7eb; padding-left: 1.1rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
+    pre { background: var(--bg-code); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.85rem; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #e5e7eb; margin: 0.85rem 0; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); color: #38bdf8; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; }
+    .diagram { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.85rem; border-radius: 0 8px 8px 0; font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #38bdf8; white-space: pre; overflow-x: auto; margin: 0.8rem 0; }
+    .qa-box { background: rgba(31, 41, 55, 0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .qa-q { font-weight: 700; color: #fff; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .qa-a { color: #d1d5db; font-size: 0.88rem; line-height: 1.5; }
+    .week-nav-btns { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
+    .btn-nav { padding: 0.65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+    .btn-nav:hover { border-color: #38bdf8; color: #38bdf8; }
+    footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); background: var(--bg-sidebar); }
+  </style>
+</head>
+<body>
+  <header><div class="header-container"><a href="index.html" class="brand">⚡ Upskill</a></div></header>
+
+  <div class="mobile-week-scroller">
+    <a href="week_1.html" class="week-pill">Week 1</a>
+    <a href="week_2.html" class="week-pill">Week 2</a>
+    <a href="week_3.html" class="week-pill">Week 3</a>
+    <a href="week_4.html" class="week-pill">Week 4</a>
+    <a href="week_5.html" class="week-pill">Week 5</a>
+    <a href="week_6.html" class="week-pill">Week 6</a>
+    <a href="week_7.html" class="week-pill">Week 7</a>
+    <a href="week_8.html" class="week-pill active">Week 8</a>
+    <a href="week_9.html" class="week-pill">Week 9</a>
+    <a href="week_10.html" class="week-pill">Week 10</a>
+    <a href="week_11.html" class="week-pill">Week 11</a>
+    <a href="week_12.html" class="week-pill">Week 12</a>
+  </div>
+
+  <!-- Daywise Horizontal Quick Jump Bar -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day50" class="day-pill">Day 50: Docker</a>
+    <a href="#day51" class="day-pill">Day 51: Kubernetes</a>
+    <a href="#day52" class="day-pill">Day 52: K8s Networking</a>
+    <a href="#day53" class="day-pill">Day 53: StatefulSets</a>
+    <a href="#day54" class="day-pill">Day 54: Helm &amp; Rollouts</a>
+    <a href="#day55" class="day-pill">Day 55: GCP Infra</a>
+    <a href="#day56" class="day-pill">Day 56: Cloud Architecture</a>
+  </div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <h3>Curriculum Modules</h3>
+      <ul class="week-nav">
+        <a href="week_1.html" class="week-nav-item"><span>Week 1: Runtime</span></a>
+        <a href="week_2.html" class="week-nav-item"><span>Week 2: Internals</span></a>
+        <a href="week_3.html" class="week-nav-item"><span>Week 3: OS & Kernel</span></a>
+        <a href="week_4.html" class="week-nav-item"><span>Week 4: Networking</span></a>
+        <a href="week_5.html" class="week-nav-item"><span>Week 5: SQL & Storage</span></a>
+        <a href="week_6.html" class="week-nav-item"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item"><span>Week 7: Backend</span></a>
+        <a href="week_8.html" class="week-nav-item active"><span>Week 8: Containers & Cloud</span> <span>✓</span></a>
+        <a href="week_9.html" class="week-nav-item"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item"><span>Week 12: Advanced</span></a>
+      </ul>
+      <div id="sidebarDayNav">
+        <h3>Jump to Topic</h3>
+        <ul class="day-nav">
+          <li><a href="#day50">Day 50: Docker &amp; Multi-Stage</a></li>
+          <li><a href="#day51">Day 51: K8s Control Plane &amp; Pods</a></li>
+          <li><a href="#day52">Day 52: Ingress &amp; CoreDNS</a></li>
+          <li><a href="#day53">Day 53: StatefulSets &amp; Operators</a></li>
+          <li><a href="#day54">Day 54: Helm &amp; Canary Rollouts</a></li>
+          <li><a href="#day55">Day 55: GCP Cloud Run &amp; IAM</a></li>
+          <li><a href="#day56">Day 56: Cloud Architecture</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="week-header-banner">
+        <span class="week-badge">MODULE 08</span>
+        <h1>Containers &amp; Cloud Infrastructure</h1>
+        <p>Docker containerization (Linux namespaces PID/NET &amp; cgroups), multi-stage Dockerfile layer caching, Kubernetes Control Plane (API Server, etcd, Scheduler) vs Worker Nodes (kubelet, containerd), Deployments, Services (ClusterIP, NodePort, LoadBalancer), Liveness/Readiness probes, Ingress TLS controllers, CoreDNS service discovery (<code>svc.cluster.local</code>), StatefulSets ordinal persistent volumes, Helm package charts, Canary &amp; Blue-Green deployment rollouts, and GCP serverless (Cloud Run, GKE, IAM Workload Identity, VPC).</p>
+      </div>
+
+      <!-- DAY 50 -->
+      <div class="day-card" id="day50">
+        <div class="day-title"><span class="day-tag">Day 50</span> Docker: Images, Layers, Volumes, Networking &amp; Multi-Stage Builds</div>
+        
+        <h3>50.1 Container Primitives &amp; Multi-Stage Dockerfile</h3>
+        <p>Containers leverage Linux <strong>Namespaces</strong> (PID, NET, MNT, IPC) for isolation and <strong>cgroups</strong> to enforce memory and CPU resource limits.</p>
+        <pre><code class="dockerfile"># Build Stage
+FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Production Stage (Minimal final image)
+FROM python:3.12-slim AS production
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .
+USER appuser
+EXPOSE 8000
+CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
+      </div>
+
+      <!-- DAY 51 -->
+      <div class="day-card" id="day51">
+        <div class="day-title"><span class="day-tag">Day 51</span> Kubernetes: Control Plane, Pods, Deployments &amp; Health Probes</div>
+        
+        <h3>51.1 Control Plane vs Worker Node Architecture</h3>
+        <div class="diagram">Control Plane: API Server <---> etcd (Cluster State Store)
+                     └─> Controller Manager & Scheduler
+Worker Nodes : kubelet <---> containerd / CRI-O <---> kube-proxy (Networking)</div>
+
+        <h3>51.2 Liveness &amp; Readiness Probes</h3>
+        <pre><code class="yaml">livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 15
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 5</code></pre>
+      </div>
+
+      <!-- DAY 52 -->
+      <div class="day-card" id="day52">
+        <div class="day-title"><span class="day-tag">Day 52</span> Kubernetes Networking: Ingress, Service Discovery &amp; CoreDNS</div>
+        
+        <h3>52.1 CoreDNS Naming Convention</h3>
+        <p>Inside a Kubernetes cluster, a pod reaches service <code>my-app-svc</code> in namespace <code>production</code> via FQDN:</p>
+        <pre><code>my-app-svc.production.svc.cluster.local</code></pre>
+      </div>
+
+      <!-- DAY 53 -->
+      <div class="day-card" id="day53">
+        <div class="day-title"><span class="day-tag">Day 53</span> StatefulSets, Persistent Volumes &amp; K8s Operators</div>
+        
+        <h3>53.1 StatefulSets vs Deployments</h3>
+        <p>Deployments manage stateless interchangeable pods with random hash IDs. <strong>StatefulSets</strong> manage stateful database clusters (PostgreSQL, Kafka, ZooKeeper) where each pod retains a stable ordinal identity (<code>db-0</code>, <code>db-1</code>) attached to its own persistent volume claim (PVC).</p>
+      </div>
+
+      <!-- DAY 54 -->
+      <div class="day-card" id="day54">
+        <div class="day-title"><span class="day-tag">Day 54</span> Helm Charts &amp; Rollout Deployment Strategies</div>
+        
+        <h3>54.1 Deployment Rollout Options</h3>
+        <ul>
+          <li><strong>RollingUpdate:</strong> Replaces pods incrementally (zero downtime).</li>
+          <li><strong>Blue-Green:</strong> Deploys v2 alongside v1, then switches load balancer target instantly.</li>
+          <li><strong>Canary (Argo Rollouts):</strong> Shifts 5% &rarr; 25% &rarr; 100% of live production traffic to v2 while monitoring error rate metrics.</li>
+        </ul>
+      </div>
+
+      <!-- DAY 55 -->
+      <div class="day-card" id="day55">
+        <div class="day-title"><span class="day-tag">Day 55</span> GCP Infrastructure: Cloud Run, GKE, Pub/Sub &amp; IAM Workload Identity</div>
+        
+        <h3>55.1 Serverless Cloud Run vs GKE</h3>
+        <p><strong>Cloud Run</strong> automatically scales HTTP container instances from 0 to N based on incoming requests (pay-per-use). <strong>GKE</strong> provides full Kubernetes cluster orchestration for complex microservice meshes and background stateful workers.</p>
+        <p><strong>Workload Identity:</strong> Allows GKE pods to assume GCP Service Account roles natively without storing vulnerable JSON credential keys inside container images!</p>
+      </div>
+
+      <!-- DAY 56 -->
+      <div class="day-card" id="day56">
+        <div class="day-title"><span class="day-tag">Day 56</span> Cloud Architecture Design Review</div>
+        <div class="qa-box">
+          <div class="qa-q">Q: What is the difference between Liveness and Readiness probes in Kubernetes?</div>
+          <div class="qa-a">A: A failing Liveness probe tells Kubernetes the container has deadlocked or crashed, causing kubelet to restart the container. A failing Readiness probe tells Kubernetes the container is temporarily busy or initializing, causing the service to temporarily stop routing traffic to that pod until it recovers.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="week-nav-btns">
+    <a href="week_7.html" class="btn-nav">← Week 7: Backend Engineering</a>
+    <a href="week_9.html" class="btn-nav">Week 9: Distributed Systems →</a>
+  </div>
+
+  <footer><p>Week 8 of 12 · Containers &amp; Cloud · High-Paid SDE Upskill Program</p></footer>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Week 4: Computer Architecture &amp; Networking | Upskill SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-main: #0b0f19; --bg-sidebar: #111827; --bg-card: #1f2937; --bg-code: #030712; --border: #374151; --text-main: #f9fafb; --text-muted: #9ca3af; --accent: #f59e0b; --accent-glow: rgba(245, 158, 11, 0.2); --accent-gradient: linear-gradient(135deg, #f59e0b, #d97706); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    header { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { font-weight: 800; font-size: 1.15rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .mobile-week-scroller { background: var(--bg-sidebar); border-bottom: 1px solid var(--border); padding: 0.6rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.5rem; scrollbar-width: none; }
+    .mobile-week-scroller::-webkit-scrollbar { display: none; }
+    .week-pill { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .week-pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+    .mobile-day-scroller { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.4rem; scrollbar-width: none; }
+    .mobile-day-scroller::-webkit-scrollbar { display: none; }
+    .day-pill { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(245, 158, 11, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+    .app-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex: 1; gap: 1.5rem; padding: 1.25rem 1rem 4rem 1rem; }
+    aside.sidebar { width: 260px; flex-shrink: 0; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; height: fit-content; position: sticky; top: 4.5rem; display: none; }
+    @media (min-width: 900px) { aside.sidebar { display: block; } }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .week-nav { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.5rem; }
+    .week-nav-item { padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+    .week-nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 600; }
+    .day-nav { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .day-nav a { color: var(--text-muted); font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; }
+    .day-nav a:hover { color: var(--accent); }
+    main.content { flex: 1; min-width: 0; }
+    .week-header-banner { background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .week-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(245, 158, 11, 0.3); padding: 0.15rem 0.5rem; border-radius: 9999px; margin-bottom: 0.4rem; }
+    .week-header-banner h1 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .week-header-banner p { color: var(--text-muted); font-size: 0.88rem; }
+    .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .day-title { font-size: 1.15rem; font-weight: 700; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .day-title span.day-tag { color: var(--accent); }
+    h3 { font-size: 0.98rem; color: var(--accent); margin: 1.1rem 0 0.4rem 0; }
+    p { color: #e5e7eb; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.55; }
+    ul, ol { color: #e5e7eb; padding-left: 1.1rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
+    pre { background: var(--bg-code); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.85rem; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #e5e7eb; margin: 0.85rem 0; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); color: #38bdf8; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; }
+    .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+    .summary-table th, .summary-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+    .summary-table th { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+    .diagram { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.85rem; border-radius: 0 8px 8px 0; font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #38bdf8; white-space: pre; overflow-x: auto; margin: 0.8rem 0; }
+    .qa-box { background: rgba(31, 41, 55, 0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .qa-q { font-weight: 700; color: #fff; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .qa-a { color: #d1d5db; font-size: 0.88rem; line-height: 1.5; }
+    .week-nav-btns { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
+    .btn-nav { padding: 0.65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+    .btn-nav:hover { border-color: #38bdf8; color: #38bdf8; }
+    footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); background: var(--bg-sidebar); }
+  </style>
+</head>
+<body>
+  <header><div class="header-container"><a href="index.html" class="brand">⚡ Upskill</a></div></header>
+
+  <div class="mobile-week-scroller">
+    <a href="week_1.html" class="week-pill">Week 1</a>
+    <a href="week_2.html" class="week-pill">Week 2</a>
+    <a href="week_3.html" class="week-pill">Week 3</a>
+    <a href="week_4.html" class="week-pill active">Week 4</a>
+    <a href="week_5.html" class="week-pill">Week 5</a>
+    <a href="week_6.html" class="week-pill">Week 6</a>
+    <a href="week_7.html" class="week-pill">Week 7</a>
+    <a href="week_8.html" class="week-pill">Week 8</a>
+    <a href="week_9.html" class="week-pill">Week 9</a>
+    <a href="week_10.html" class="week-pill">Week 10</a>
+    <a href="week_11.html" class="week-pill">Week 11</a>
+    <a href="week_12.html" class="week-pill">Week 12</a>
+  </div>
+
+  <!-- Daywise Horizontal Quick Jump Bar -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day22" class="day-pill">Day 22: CPU Hierarchy</a>
+    <a href="#day23" class="day-pill">Day 23: Pipelines &amp; Assembly</a>
+    <a href="#day24" class="day-pill">Day 24: TCP/IP &amp; Sockets</a>
+    <a href="#day25" class="day-pill">Day 25: HTTP/2-3 &amp; gRPC</a>
+    <a href="#day26" class="day-pill">Day 26: Load Balancing &amp; Pools</a>
+    <a href="#day27" class="day-pill">Day 27: TLS &amp; Certs</a>
+    <a href="#day28" class="day-pill">Day 28: End-to-End Trace</a>
+  </div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <h3>Curriculum Modules</h3>
+      <ul class="week-nav">
+        <a href="week_1.html" class="week-nav-item"><span>Week 1: Runtime</span></a>
+        <a href="week_2.html" class="week-nav-item"><span>Week 2: Internals</span></a>
+        <a href="week_3.html" class="week-nav-item"><span>Week 3: OS & Kernel</span></a>
+        <a href="week_4.html" class="week-nav-item active"><span>Week 4: Networking</span> <span>✓</span></a>
+        <a href="week_5.html" class="week-nav-item"><span>Week 5: SQL & Storage</span></a>
+        <a href="week_6.html" class="week-nav-item"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item"><span>Week 7: Backend</span></a>
+        <a href="week_8.html" class="week-nav-item"><span>Week 8: Containers & Cloud</span></a>
+        <a href="week_9.html" class="week-nav-item"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item"><span>Week 12: Advanced</span></a>
+      </ul>
+      <div id="sidebarDayNav">
+        <h3>Jump to Topic</h3>
+        <ul class="day-nav">
+          <li><a href="#day22">Day 22: CPU Cache Hierarchy</a></li>
+          <li><a href="#day23">Day 23: Pipelines &amp; Assembly</a></li>
+          <li><a href="#day24">Day 24: OSI, TCP/IP &amp; Sockets</a></li>
+          <li><a href="#day25">Day 25: HTTP/2, HTTP/3 &amp; gRPC</a></li>
+          <li><a href="#day26">Day 26: Proxies &amp; Balancing</a></li>
+          <li><a href="#day27">Day 27: TLS 1.3 &amp; Security</a></li>
+          <li><a href="#day28">Day 28: End-to-End Trace</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="week-header-banner">
+        <span class="week-badge">MODULE 04</span>
+        <h1>Computer Architecture &amp; Networking</h1>
+        <p>CPU registers, memory hierarchy latency (L1/L2/L3/RAM/NVMe), 64-byte cache lines, spatial locality, pipeline hazards, branch prediction, x86-64 assembly System V ABI, OSI &amp; TCP/IP models, TCP 3-way handshake, socket programming, HTTP/1.1 vs HTTP/2 multiplexing vs HTTP/3 QUIC, WebSockets, gRPC protobufs, load balancing algorithms, exponential backoff retries with jitter, connection pools, and TLS 1.3 certificate chains.</p>
+      </div>
+
+      <!-- DAY 22 -->
+      <div class="day-card" id="day22">
+        <div class="day-title"><span class="day-tag">Day 22</span> CPU Architecture, Registers, Caches &amp; Memory Hierarchy</div>
+        
+        <h3>22.1 Memory Hierarchy Latency Table</h3>
+        <table class="summary-table">
+          <thead>
+            <tr><th>Memory Level</th><th>Typical Capacity</th><th>Access Latency</th><th>Bandwidth</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CPU Registers</td><td>32 × 64-bit</td><td>0.3 ns</td><td>N/A</td></tr>
+            <tr><td>L1 Cache</td><td>32–64 KB</td><td>1.0 ns</td><td>~1 TB/s</td></tr>
+            <tr><td>L2 Cache</td><td>256 KB – 1 MB</td><td>3.0–4.0 ns</td><td>~500 GB/s</td></tr>
+            <tr><td>L3 Cache (LLC)</td><td>4–64 MB</td><td>10.0–40.0 ns</td><td>~200 GB/s</td></tr>
+            <tr><td>DRAM (Main Memory)</td><td>8–512 GB</td><td>60.0–100.0 ns</td><td>~50 GB/s</td></tr>
+            <tr><td>NVMe SSD</td><td>1–8 TB</td><td>20.0–100.0 µs</td><td>~7 GB/s</td></tr>
+            <tr><td>Network Roundtrip</td><td>∞</td><td>1.0–100.0+ ms</td><td>10 Mbps – 100 Gbps</td></tr>
+          </tbody>
+        </table>
+
+        <h3>22.2 Spatial Locality &amp; 64-Byte Cache Lines</h3>
+        <p>Memory is fetched from RAM into CPU caches in fixed <strong>64-byte Cache Lines</strong>. Accessing contiguous sequential memory arrays takes full advantage of spatial locality!</p>
+        <pre><code class="python"># Cache-Friendly: Row-Major Traversal (Contiguous memory access)
+for i in range(N):
+    for j in range(N):
+        matrix[i][j] += 1
+
+# Cache-Unfriendly: Column-Major Traversal (Strided memory jumps across cache lines)
+for j in range(N):
+    for i in range(N):
+        matrix[i][j] += 1</code></pre>
+      </div>
+
+      <!-- DAY 23 -->
+      <div class="day-card" id="day23">
+        <div class="day-title"><span class="day-tag">Day 23</span> Instruction Pipelines, Branch Prediction &amp; Assembly</div>
+        
+        <h3>23.1 5-Stage CPU Instruction Pipeline</h3>
+        <div class="diagram">IF (Fetch) -> ID (Decode) -> EX (Execute) -> MEM (Memory Access) -> WB (Write Back)</div>
+        <p><strong>Pipeline Hazards:</strong> Data hazards (dependency on incomplete prior instruction), Control hazards (branch misprediction requiring pipeline flush costing 15–20 cycles), and Structural hazards (hardware resource conflicts).</p>
+
+        <h3>23.2 x86-64 Register Set &amp; System V AMD64 ABI</h3>
+        <ul>
+          <li><code>rax:</code> Return value &amp; general accumulator</li>
+          <li><code>rsp:</code> Current stack pointer top address</li>
+          <li><code>rbp:</code> Base stack frame pointer</li>
+          <li><code>rip:</code> Instruction pointer (Program Counter)</li>
+          <li><code>rdi, rsi, rdx, rcx, r8, r9:</code> System V ABI function call argument registers (Linux/macOS)</li>
+        </ul>
+      </div>
+
+      <!-- DAY 24 -->
+      <div class="day-card" id="day24">
+        <div class="day-title"><span class="day-tag">Day 24</span> OSI Model, TCP/IP, Sockets, DNS &amp; HTTP</div>
+        
+        <h3>24.1 TCP 3-Way Handshake &amp; 4-Way Teardown</h3>
+        <div class="diagram">Connection Setup (3-Way Handshake):
+  Client --[ SYN (seq=x) ]-------------> Server
+  Client <--[ SYN-ACK (seq=y, ack=x+1) ]-- Server
+  Client --[ ACK (ack=y+1) ]------------> Server
+
+Connection Teardown (4-Way FIN):
+  Client --[ FIN ]--> Server --[ ACK ]--> Client
+  Server --[ FIN ]--> Client --[ ACK ]--> Client  (Enters TIME_WAIT state for 2*MSL)</div>
+
+        <h3>24.2 CPython Socket API</h3>
+        <pre><code class="python">import socket
+
+# Low-level TCP Server
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind(('0.0.0.0', 8080))
+server.listen(100)
+
+conn, addr = server.accept()
+request_bytes = conn.recv(4096)
+conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!")
+conn.close()</code></pre>
+      </div>
+
+      <!-- DAY 25 -->
+      <div class="day-card" id="day25">
+        <div class="day-title"><span class="day-tag">Day 25</span> HTTP/2, HTTP/3, QUIC, WebSockets &amp; gRPC</div>
+        
+        <h3>25.1 Evolution of HTTP Protocols</h3>
+        <ul>
+          <li><strong>HTTP/1.1:</strong> Text-based, persistent keep-alive connections, prone to Head-of-Line (HOL) blocking at application level.</li>
+          <li><strong>HTTP/2:</strong> Binary framing layer, HPACK header compression, full bidirectional multiplexing over single TCP connection.</li>
+          <li><strong>HTTP/3 (QUIC):</strong> Built on UDP. Eliminates TCP-level HOL blocking, supports 0-RTT connection resumption, and provides seamless WiFi-to-Cellular connection migration.</li>
+        </ul>
+
+        <h3>25.2 gRPC &amp; Protocol Buffers</h3>
+        <p>gRPC utilizes Protocol Buffers (compact binary serialization) over HTTP/2 multiplexed streams, supporting Unary, Server Streaming, Client Streaming, and Bidirectional Streaming RPCs.</p>
+      </div>
+
+      <!-- DAY 26 -->
+      <div class="day-card" id="day26">
+        <div class="day-title"><span class="day-tag">Day 26</span> Reverse Proxies, Load Balancing &amp; Connection Pools</div>
+        
+        <h3>26.1 Load Balancing Algorithms</h3>
+        <ul>
+          <li><strong>Round Robin:</strong> Sequential rotation (assumes equal server capacity).</li>
+          <li><strong>Least Connections:</strong> Routes traffic to instance with fewest active connections.</li>
+          <li><strong>Consistent Hashing / IP Hash:</strong> Maps client IPs onto hash ring for sticky session affinity.</li>
+          <li><strong>Power of Two Random Choices:</strong> Picks 2 random nodes and routes to the less loaded one.</li>
+        </ul>
+
+        <h3>26.2 Exponential Backoff with Full Jitter</h3>
+        <pre><code class="python">import time, random
+
+def execute_with_retry(operation_func, max_attempts=5, base_delay=1.0):
+    for attempt in range(max_attempts):
+        try:
+            return operation_func()
+        except Exception as e:
+            if attempt == max_attempts - 1: raise
+            # Exponential backoff with random full jitter to prevent thundering herds
+            sleep_time = random.uniform(0, base_delay * (2 ** attempt))
+            time.sleep(sleep_time)</code></pre>
+      </div>
+
+      <!-- DAY 27 -->
+      <div class="day-card" id="day27">
+        <div class="day-title"><span class="day-tag">Day 27</span> TLS 1.3 Security, Certificate Chains &amp; Resumption</div>
+        
+        <h3>27.1 TLS 1.3 1-RTT Handshake Flow</h3>
+        <div class="diagram">Client                                       Server
+  │ ────── ClientHello + Key Share (Diffie-Hellman) ────> │
+  │ <───── ServerHello + Cert + Encrypted Extensions ──── │
+  │ ────── Finished (Encrypted Data Starts!) ──────────> │</div>
+        <p>TLS 1.3 encrypts certificate exchange and cuts handshake latency down from 2 RTTs (in TLS 1.2) to just 1 RTT.</p>
+      </div>
+
+      <!-- DAY 28 -->
+      <div class="day-card" id="day28">
+        <div class="day-title"><span class="day-tag">Day 28</span> End-to-End Request Trace</div>
+        <p>Tracing a single browser request (e.g. <code>https://api.example.com/checkout</code>):</p>
+        <ol>
+          <li><strong>DNS Lookup:</strong> Browser Cache &rarr; OS Cache &rarr; Resolver &rarr; Root/TLD/Auth Nameserver (returns IPv4 <code>A</code> record).</li>
+          <li><strong>TCP &amp; TLS 1.3 Handshake:</strong> SYN/SYN-ACK/ACK + ECDHE key exchange (1 RTT).</li>
+          <li><strong>Reverse Proxy Gateway:</strong> Nginx/Envoy terminates TLS, applies Rate Limiting (Token Bucket), routes via Least Connections to backend pod.</li>
+          <li><strong>Application Server:</strong> Python <code>asyncio</code> event loop reads socket via <code>epoll</code>, fetches connection from SQLAlchemy pool, executes query, and streams JSON response.</li>
+        </ol>
+      </div>
+    </main>
+  </div>
+
+  <div class="week-nav-btns">
+    <a href="week_3.html" class="btn-nav">← Week 3: OS & Kernel</a>
+    <a href="week_5.html" class="btn-nav">Week 5: SQL & Storage →</a>
+  </div>
+
+  <footer><p>Week 4 of 12 · Architecture &amp; Networking · High-Paid SDE Upskill Program</p></footer>
+</body>
+</html>

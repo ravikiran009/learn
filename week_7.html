@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Week 7: Backend Engineering | Upskill SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-main: #0b0f19; --bg-sidebar: #111827; --bg-card: #1f2937; --bg-code: #030712; --border: #374151; --text-main: #f9fafb; --text-muted: #9ca3af; --accent: #06b6d4; --accent-glow: rgba(6, 182, 212, 0.2); --accent-gradient: linear-gradient(135deg, #06b6d4, #3b82f6); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    header { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { font-weight: 800; font-size: 1.15rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .mobile-week-scroller { background: var(--bg-sidebar); border-bottom: 1px solid var(--border); padding: 0.6rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.5rem; scrollbar-width: none; }
+    .mobile-week-scroller::-webkit-scrollbar { display: none; }
+    .week-pill { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .week-pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+    .mobile-day-scroller { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.4rem; scrollbar-width: none; }
+    .mobile-day-scroller::-webkit-scrollbar { display: none; }
+    .day-pill { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(6, 182, 212, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+    .app-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex: 1; gap: 1.5rem; padding: 1.25rem 1rem 4rem 1rem; }
+    aside.sidebar { width: 260px; flex-shrink: 0; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; height: fit-content; position: sticky; top: 4.5rem; display: none; }
+    @media (min-width: 900px) { aside.sidebar { display: block; } }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .week-nav { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.5rem; }
+    .week-nav-item { padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+    .week-nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(6, 182, 212, 0.3); font-weight: 600; }
+    .day-nav { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .day-nav a { color: var(--text-muted); font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; }
+    .day-nav a:hover { color: var(--accent); }
+    main.content { flex: 1; min-width: 0; }
+    .week-header-banner { background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .week-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(6, 182, 212, 0.3); padding: 0.15rem 0.5rem; border-radius: 9999px; margin-bottom: 0.4rem; }
+    .week-header-banner h1 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .week-header-banner p { color: var(--text-muted); font-size: 0.88rem; }
+    .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .day-title { font-size: 1.15rem; font-weight: 700; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .day-title span.day-tag { color: var(--accent); }
+    h3 { font-size: 0.98rem; color: var(--accent); margin: 1.1rem 0 0.4rem 0; }
+    p { color: #e5e7eb; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.55; }
+    ul, ol { color: #e5e7eb; padding-left: 1.1rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
+    pre { background: var(--bg-code); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.85rem; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #e5e7eb; margin: 0.85rem 0; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); color: #38bdf8; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; }
+    .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+    .summary-table th, .summary-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+    .summary-table th { background: rgba(6, 182, 212, 0.1); color: var(--accent); }
+    .diagram { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.85rem; border-radius: 0 8px 8px 0; font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #38bdf8; white-space: pre; overflow-x: auto; margin: 0.8rem 0; }
+    .qa-box { background: rgba(31, 41, 55, 0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .qa-q { font-weight: 700; color: #fff; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .qa-a { color: #d1d5db; font-size: 0.88rem; line-height: 1.5; }
+    .week-nav-btns { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
+    .btn-nav { padding: 0.65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+    .btn-nav:hover { border-color: #38bdf8; color: #38bdf8; }
+    footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); background: var(--bg-sidebar); }
+  </style>
+</head>
+<body>
+  <header><div class="header-container"><a href="index.html" class="brand">⚡ Upskill</a></div></header>
+
+  <div class="mobile-week-scroller">
+    <a href="week_1.html" class="week-pill">Week 1</a>
+    <a href="week_2.html" class="week-pill">Week 2</a>
+    <a href="week_3.html" class="week-pill">Week 3</a>
+    <a href="week_4.html" class="week-pill">Week 4</a>
+    <a href="week_5.html" class="week-pill">Week 5</a>
+    <a href="week_6.html" class="week-pill">Week 6</a>
+    <a href="week_7.html" class="week-pill active">Week 7</a>
+    <a href="week_8.html" class="week-pill">Week 8</a>
+    <a href="week_9.html" class="week-pill">Week 9</a>
+    <a href="week_10.html" class="week-pill">Week 10</a>
+    <a href="week_11.html" class="week-pill">Week 11</a>
+    <a href="week_12.html" class="week-pill">Week 12</a>
+  </div>
+
+  <!-- Daywise Horizontal Quick Jump Bar -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day43" class="day-pill">Day 43: REST API</a>
+    <a href="#day44" class="day-pill">Day 44: Auth &amp; JWT</a>
+    <a href="#day45" class="day-pill">Day 45: asyncio Events</a>
+    <a href="#day46" class="day-pill">Day 46: Queues &amp; Kafka</a>
+    <a href="#day47" class="day-pill">Day 47: Rate Limit &amp; Breakers</a>
+    <a href="#day48" class="day-pill">Day 48: OpenTelemetry</a>
+    <a href="#day49" class="day-pill">Day 49: System Review</a>
+  </div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <h3>Curriculum Modules</h3>
+      <ul class="week-nav">
+        <a href="week_1.html" class="week-nav-item"><span>Week 1: Runtime</span></a>
+        <a href="week_2.html" class="week-nav-item"><span>Week 2: Internals</span></a>
+        <a href="week_3.html" class="week-nav-item"><span>Week 3: OS & Kernel</span></a>
+        <a href="week_4.html" class="week-nav-item"><span>Week 4: Networking</span></a>
+        <a href="week_5.html" class="week-nav-item"><span>Week 5: SQL & Storage</span></a>
+        <a href="week_6.html" class="week-nav-item"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item active"><span>Week 7: Backend</span> <span>✓</span></a>
+        <a href="week_8.html" class="week-nav-item"><span>Week 8: Containers & Cloud</span></a>
+        <a href="week_9.html" class="week-nav-item"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item"><span>Week 12: Advanced</span></a>
+      </ul>
+      <div id="sidebarDayNav">
+        <h3>Jump to Topic</h3>
+        <ul class="day-nav">
+          <li><a href="#day43">Day 43: REST API &amp; Idempotency</a></li>
+          <li><a href="#day44">Day 44: Auth, JWT &amp; OAuth2</a></li>
+          <li><a href="#day45">Day 45: asyncio &amp; TaskGroup</a></li>
+          <li><a href="#day46">Day 46: Celery, RabbitMQ &amp; Kafka</a></li>
+          <li><a href="#day47">Day 47: Rate Limit &amp; Breakers</a></li>
+          <li><a href="#day48">Day 48: OpenTelemetry &amp; Logs</a></li>
+          <li><a href="#day49">Day 49: Backend Review</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="week-header-banner">
+        <span class="week-badge">MODULE 07</span>
+        <h1>Backend Engineering</h1>
+        <p>Production REST API design, cursor pagination, idempotency keys, JWT header.payload.signature verification, OAuth 2.0 PKCE, RBAC, asyncio event loops, Celery task primitives (chain/group/chord), RabbitMQ AMQP exchanges, Kafka topic partitions, Token Bucket rate limiting, Circuit Breaker state machines, and OpenTelemetry distributed request tracing.</p>
+      </div>
+
+      <!-- DAY 43 -->
+      <div class="day-card" id="day43">
+        <div class="day-title"><span class="day-tag">Day 43</span> REST API Design: Versioning, Pagination, Idempotency &amp; Status Codes</div>
+        
+        <h3>43.1 Cursor Pagination vs Offset Pagination</h3>
+        <p>Offset pagination (<code>LIMIT 10 OFFSET 50</code>) degrades to $O(N)$ scanning on large tables and suffers from item shifting when rows are inserted concurrently. <strong>Cursor Pagination</strong> uses a base64-encoded pointer (e.g. <code>id &gt; 100 ORDER BY id LIMIT 10</code>) for stable $O(1)$ index lookups!</p>
+
+        <h3>43.2 Idempotency Key Handling with Redis</h3>
+        <pre><code class="python">def create_payment(request):
+    idem_key = request.headers.get("Idempotency-Key")
+    if idem_key:
+        cached = redis_client.get(f"idem:{idem_key}")
+        if cached:
+            return JSONResponse(status_code=200, content=json.loads(cached))
+            
+    result = {"status": "success", "charge_id": "ch_98765"}
+    if idem_key:
+        redis_client.setex(f"idem:{idem_key}", 86400, json.dumps(result))
+    return JSONResponse(status_code=201, content=result)</code></pre>
+      </div>
+
+      <!-- DAY 44 -->
+      <div class="day-card" id="day44">
+        <div class="day-title"><span class="day-tag">Day 44</span> Authentication &amp; Authorization: JWT, OAuth2, PKCE &amp; RBAC</div>
+        
+        <h3>44.1 JWT Anatomy &amp; Security Best Practices</h3>
+        <div class="diagram">JWT Format: header.payload.signature (Base64URL encoded)
+Header: {"alg": "HS256", "typ": "JWT"}
+Payload: {"sub": "usr_123", "exp": 1700000000, "role": "admin"}
+Signature: HMAC-SHA256(Base64(Header) + "." + Base64(Payload), SecretKey)</div>
+        <p><strong>Security Rule:</strong> Never store JWT tokens in <code>localStorage</code> (vulnerable to XSS). Always store access tokens in <code>httpOnly; Secure; SameSite=Strict</code> cookies!</p>
+      </div>
+
+      <!-- DAY 45 -->
+      <div class="day-card" id="day45">
+        <div class="day-title"><span class="day-tag">Day 45</span> asyncio Internals: Coroutines, Tasks &amp; TaskGroup</div>
+        
+        <h3>45.1 asyncio Execution Flow</h3>
+        <pre><code class="python">import asyncio
+
+async def fetch_data(service_id):
+    await asyncio.sleep(0.1)
+    return f"Response from service {service_id}"
+
+async def main():
+    # Python 3.11+ TaskGroup for safe exception propagation and automatic cleanup
+    async with asyncio.TaskGroup() as tg:
+        task1 = tg.create_task(fetch_data(1))
+        task2 = tg.create_task(fetch_data(2))
+    print(task1.result(), task2.result())
+
+# asyncio.run(main())</code></pre>
+      </div>
+
+      <!-- DAY 46 -->
+      <div class="day-card" id="day46">
+        <div class="day-title"><span class="day-tag">Day 46</span> Message Queues &amp; Task Processing: Celery, RabbitMQ &amp; Kafka</div>
+        
+        <h3>46.1 Celery Primitives</h3>
+        <pre><code class="python">from celery import chain, group, chord
+
+# Chain: Execute tasks sequentially
+chain(task_a.s(), task_b.s(), task_c.s()).delay()
+
+# Group: Execute tasks in parallel
+group(task_worker.s(i) for i in range(10)).delay()
+
+# Chord: Parallel execution followed by callback aggregation
+chord(group(fetch.s(i) for i in range(5)), aggregate_results.s()).delay()</code></pre>
+      </div>
+
+      <!-- DAY 47 -->
+      <div class="day-card" id="day47">
+        <div class="day-title"><span class="day-tag">Day 47</span> Rate Limiting, Circuit Breakers &amp; Bulkheads</div>
+        
+        <h3>47.1 Circuit Breaker State Machine</h3>
+        <div class="diagram">CLOSED (Normal Operation) ──(Threshold Failures Exceeded)──> OPEN (Immediately Fails Calls)
+     ▲                                                                │
+     └─────────── (Test Succeeded) ── HALF-OPEN <── (Recovery Timeout) ┘</div>
+      </div>
+
+      <!-- DAY 48 -->
+      <div class="day-card" id="day48">
+        <div class="day-title"><span class="day-tag">Day 48</span> Observability: Structured Logging, Prometheus &amp; OpenTelemetry</div>
+        
+        <h3>48.1 OpenTelemetry Distributed Tracing</h3>
+        <pre><code class="python">from opentelemetry import trace
+
+tracer = trace.get_tracer("order_service")
+
+def process_order(order_id):
+    with tracer.start_as_current_span("process_order") as span:
+        span.set_attribute("order.id", order_id)
+        with tracer.start_as_current_span("db_query"):
+            order = db.find_order(order_id)
+        with tracer.start_as_current_span("payment_charge"):
+            charge_user(order.total)</code></pre>
+      </div>
+
+      <!-- DAY 49 -->
+      <div class="day-card" id="day49">
+        <div class="day-title"><span class="day-tag">Day 49</span> Production Service Architecture Review</div>
+        <div class="qa-box">
+          <div class="qa-q">Q: What is the difference between RabbitMQ and Apache Kafka?</div>
+          <div class="qa-a">A: RabbitMQ is a traditional message broker where messages are deleted upon consumer ACK (great for task queues and complex routing). Kafka is a distributed append-only log where events are retained on disk and replayable by multiple consumer groups (great for event streaming and high throughput).</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="week-nav-btns">
+    <a href="week_6.html" class="btn-nav">← Week 6: Software Design</a>
+    <a href="week_8.html" class="btn-nav">Week 8: Containers & Cloud →</a>
+  </div>
+
+  <footer><p>Week 7 of 12 · Backend Engineering · High-Paid SDE Upskill Program</p></footer>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Week 5: SQL &amp; Storage Systems | Upskill SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-main: #0b0f19; --bg-sidebar: #111827; --bg-card: #1f2937; --bg-code: #030712; --border: #374151; --text-main: #f9fafb; --text-muted: #9ca3af; --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.2); --accent-gradient: linear-gradient(135deg, #ef4444, #dc2626); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    header { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { font-weight: 800; font-size: 1.15rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .mobile-week-scroller { background: var(--bg-sidebar); border-bottom: 1px solid var(--border); padding: 0.6rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.5rem; scrollbar-width: none; }
+    .mobile-week-scroller::-webkit-scrollbar { display: none; }
+    .week-pill { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .week-pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+    .mobile-day-scroller { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.4rem; scrollbar-width: none; }
+    .mobile-day-scroller::-webkit-scrollbar { display: none; }
+    .day-pill { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(239, 68, 68, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+    .app-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex: 1; gap: 1.5rem; padding: 1.25rem 1rem 4rem 1rem; }
+    aside.sidebar { width: 260px; flex-shrink: 0; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; height: fit-content; position: sticky; top: 4.5rem; display: none; }
+    @media (min-width: 900px) { aside.sidebar { display: block; } }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .week-nav { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.5rem; }
+    .week-nav-item { padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+    .week-nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; }
+    .day-nav { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .day-nav a { color: var(--text-muted); font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; }
+    .day-nav a:hover { color: var(--accent); }
+    main.content { flex: 1; min-width: 0; }
+    .week-header-banner { background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .week-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.15rem 0.5rem; border-radius: 9999px; margin-bottom: 0.4rem; }
+    .week-header-banner h1 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .week-header-banner p { color: var(--text-muted); font-size: 0.88rem; }
+    .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .day-title { font-size: 1.15rem; font-weight: 700; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .day-title span.day-tag { color: var(--accent); }
+    h3 { font-size: 0.98rem; color: var(--accent); margin: 1.1rem 0 0.4rem 0; }
+    p { color: #e5e7eb; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.55; }
+    ul, ol { color: #e5e7eb; padding-left: 1.1rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
+    pre { background: var(--bg-code); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.85rem; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #e5e7eb; margin: 0.85rem 0; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); color: #38bdf8; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; }
+    .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+    .summary-table th, .summary-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+    .summary-table th { background: rgba(239, 68, 68, 0.1); color: var(--accent); }
+    .diagram { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.85rem; border-radius: 0 8px 8px 0; font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #38bdf8; white-space: pre; overflow-x: auto; margin: 0.8rem 0; }
+    .qa-box { background: rgba(31, 41, 55, 0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .qa-q { font-weight: 700; color: #fff; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .qa-a { color: #d1d5db; font-size: 0.88rem; line-height: 1.5; }
+    .week-nav-btns { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
+    .btn-nav { padding: 0.65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+    .btn-nav:hover { border-color: #38bdf8; color: #38bdf8; }
+    footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); background: var(--bg-sidebar); }
+  </style>
+</head>
+<body>
+  <header><div class="header-container"><a href="index.html" class="brand">⚡ Upskill</a></div></header>
+
+  <div class="mobile-week-scroller">
+    <a href="week_1.html" class="week-pill">Week 1</a>
+    <a href="week_2.html" class="week-pill">Week 2</a>
+    <a href="week_3.html" class="week-pill">Week 3</a>
+    <a href="week_4.html" class="week-pill">Week 4</a>
+    <a href="week_5.html" class="week-pill active">Week 5</a>
+    <a href="week_6.html" class="week-pill">Week 6</a>
+    <a href="week_7.html" class="week-pill">Week 7</a>
+    <a href="week_8.html" class="week-pill">Week 8</a>
+    <a href="week_9.html" class="week-pill">Week 9</a>
+    <a href="week_10.html" class="week-pill">Week 10</a>
+    <a href="week_11.html" class="week-pill">Week 11</a>
+    <a href="week_12.html" class="week-pill">Week 12</a>
+  </div>
+
+  <!-- Daywise Horizontal Quick Jump Bar -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day29" class="day-pill">Day 29: Advanced SQL</a>
+    <a href="#day30" class="day-pill">Day 30: Transactions &amp; MVCC</a>
+    <a href="#day31" class="day-pill">Day 31: Indexes &amp; B-Tree</a>
+    <a href="#day32" class="day-pill">Day 32: Sharding &amp; Replication</a>
+    <a href="#day33" class="day-pill">Day 33: Redis Caching</a>
+    <a href="#day34" class="day-pill">Day 34: Spanner &amp; CAP</a>
+    <a href="#day35" class="day-pill">Day 35: Optimization Workshop</a>
+  </div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <h3>Curriculum Modules</h3>
+      <ul class="week-nav">
+        <a href="week_1.html" class="week-nav-item"><span>Week 1: Runtime</span></a>
+        <a href="week_2.html" class="week-nav-item"><span>Week 2: Internals</span></a>
+        <a href="week_3.html" class="week-nav-item"><span>Week 3: OS & Kernel</span></a>
+        <a href="week_4.html" class="week-nav-item"><span>Week 4: Networking</span></a>
+        <a href="week_5.html" class="week-nav-item active"><span>Week 5: SQL & Storage</span> <span>✓</span></a>
+        <a href="week_6.html" class="week-nav-item"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item"><span>Week 7: Backend</span></a>
+        <a href="week_8.html" class="week-nav-item"><span>Week 8: Containers & Cloud</span></a>
+        <a href="week_9.html" class="week-nav-item"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item"><span>Week 12: Advanced</span></a>
+      </ul>
+      <div id="sidebarDayNav">
+        <h3>Jump to Topic</h3>
+        <ul class="day-nav">
+          <li><a href="#day29">Day 29: Advanced SQL &amp; Windowing</a></li>
+          <li><a href="#day30">Day 30: ACID, Isolation &amp; MVCC</a></li>
+          <li><a href="#day31">Day 31: B-Tree Indexes &amp; EXPLAIN</a></li>
+          <li><a href="#day32">Day 32: Sharding &amp; Replication</a></li>
+          <li><a href="#day33">Day 33: Redis Eviction &amp; Caching</a></li>
+          <li><a href="#day34">Day 34: CAP Theorem &amp; Spanner</a></li>
+          <li><a href="#day35">Day 35: Query Optimization</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="week-header-banner">
+        <span class="week-badge">MODULE 05</span>
+        <h1>SQL &amp; Storage Systems</h1>
+        <p>Advanced SQL joins, window functions (ROW_NUMBER, DENSE_RANK, LAG/LEAD), recursive CTEs, ACID guarantees, transaction isolation levels, PostgreSQL MVCC (xmin/xmax &amp; autovacuum), B-tree indexes, query plan EXPLAIN ANALYZE, database sharding, streaming WAL replication, Redis cache-aside &amp; eviction policies, and CAP theorem / Google Spanner TrueTime consistency.</p>
+      </div>
+
+      <!-- DAY 29 -->
+      <div class="day-card" id="day29">
+        <div class="day-title"><span class="day-tag">Day 29</span> Advanced SQL: Joins, CTEs &amp; Window Functions</div>
+        
+        <h3>29.1 Execution Algorithms for Joins</h3>
+        <ul>
+          <li><strong>Nested Loop Join ($O(N \times M)$):</strong> Iterates over inner table for each row in outer table. Best when joining small tables or indexed lookups.</li>
+          <li><strong>Hash Join ($O(N + M)$):</strong> Builds in-memory hash table on join key of smaller table, then probes it with larger table.</li>
+          <li><strong>Merge Join ($O(N \log N + M \log M)$):</strong> Sorts both tables on join keys and merges concurrently.</li>
+        </ul>
+
+        <h3>29.2 Recursive CTEs for Hierarchical Graphs</h3>
+        <pre><code class="sql">WITH RECURSIVE org_hierarchy AS (
+    -- Base Case: Root Executives
+    SELECT id, name, manager_id, 1 AS depth
+    FROM employees WHERE manager_id IS NULL
+    UNION ALL
+    -- Recursive Step: Subordinates
+    SELECT e.id, e.name, e.manager_id, oh.depth + 1
+    FROM employees e
+    JOIN org_hierarchy oh ON e.manager_id = oh.id
+)
+SELECT name, depth FROM org_hierarchy ORDER BY depth, name;</code></pre>
+
+        <h3>29.3 Window Functions</h3>
+        <pre><code class="sql">SELECT name, salary, department_id,
+       ROW_NUMBER() OVER (PARTITION BY department_id ORDER BY salary DESC) as row_num,
+       DENSE_RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as dept_rank,
+       LAG(salary, 1) OVER (PARTITION BY department_id ORDER BY hire_date) as prev_salary
+FROM employees;</code></pre>
+      </div>
+
+      <!-- DAY 30 -->
+      <div class="day-card" id="day30">
+        <div class="day-title"><span class="day-tag">Day 30</span> Transactions, ACID, Isolation Levels &amp; MVCC</div>
+        
+        <h3>30.1 Transaction Anomalies &amp; Isolation Matrix</h3>
+        <table class="summary-table">
+          <thead>
+            <tr><th>Isolation Level</th><th>Dirty Read</th><th>Non-Repeatable Read</th><th>Phantom Read</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>READ UNCOMMITTED</td><td>Possible</td><td>Possible</td><td>Possible</td></tr>
+            <tr><td>READ COMMITTED (PostgreSQL Default)</td><td>Prevented</td><td>Possible</td><td>Possible</td></tr>
+            <tr><td>REPEATABLE READ (MySQL InnoDB Default)</td><td>Prevented</td><td>Prevented</td><td>Possible</td></tr>
+            <tr><td>SERIALIZABLE (Strictest)</td><td>Prevented</td><td>Prevented</td><td>Prevented</td></tr>
+          </tbody>
+        </table>
+
+        <h3>30.2 PostgreSQL MVCC (Multi-Version Concurrency Control)</h3>
+        <p>In PostgreSQL, <code>UPDATE</code> operations do not overwrite existing tuples in-place. Instead, a new tuple version is created with <code>xmin</code> set to the current transaction ID, while the old tuple's <code>xmax</code> is updated. Readers read consistent snapshots without blocking writers!</p>
+      </div>
+
+      <!-- DAY 31 -->
+      <div class="day-card" id="day31">
+        <div class="day-title"><span class="day-tag">Day 31</span> Indexes, B-Tree Structure &amp; EXPLAIN ANALYZE</div>
+        
+        <h3>31.1 B-Tree Index Structure</h3>
+        <p>B-Trees maintain balanced leaf nodes connected as a doubly linked list, enabling $O(\log N)$ point lookups as well as fast ordered range scans (e.g. <code>WHERE salary BETWEEN 50k AND 100k</code>).</p>
+
+        <h3>31.2 Specialized Index Types</h3>
+        <ul>
+          <li><strong>Covering Index:</strong> Uses <code>INCLUDE (col1, col2)</code> to allow Index-Only Scans without reading heap pages.</li>
+          <li><strong>Partial Index:</strong> Indexes a filtered subset (e.g. <code>WHERE status = 'pending'</code>) saving disk space.</li>
+          <li><strong>GIN (Generalized Inverted Index):</strong> Used for array elements, JSONB documents, and full-text search.</li>
+        </ul>
+
+        <h3>31.3 Query Execution Plans</h3>
+        <pre><code class="sql">EXPLAIN ANALYZE SELECT * FROM orders WHERE status = 'pending' AND created_at >= NOW() - INTERVAL '1 day';</code></pre>
+      </div>
+
+      <!-- DAY 32 -->
+      <div class="day-card" id="day32">
+        <div class="day-title"><span class="day-tag">Day 32</span> Sharding, Streaming WAL Replication &amp; Failover</div>
+        
+        <h3>32.1 Partitioning vs Sharding</h3>
+        <p><strong>Partitioning</strong> splits large tables into physical chunks within a single database node. <strong>Sharding</strong> distributes data horizontally across multiple independent database nodes using consistent hashing on a shard key.</p>
+
+        <h3>32.2 Replication Tradeoffs</h3>
+        <ul>
+          <li><strong>Synchronous Replication:</strong> Zero data loss (RPO = 0), but high commit latency waiting for standby ACK.</li>
+          <li><strong>Asynchronous Streaming WAL Replication:</strong> Low commit latency, but potential replication lag on failover.</li>
+        </ul>
+      </div>
+
+      <!-- DAY 33 -->
+      <div class="day-card" id="day33">
+        <div class="day-title"><span class="day-tag">Day 33</span> Redis Caching, Eviction Policies &amp; Invalidation</div>
+        
+        <h3>33.1 Cache-Aside (Lazy Loading) Pattern</h3>
+        <pre><code class="python">import json, redis
+
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+def get_user_profile(user_id):
+    cache_key = f"user:{user_id}"
+    cached_val = r.get(cache_key)
+    if cached_val:
+        return json.loads(cached_val)
+    
+    # Cache miss: fetch from SQL DB
+    user_data = db_query("SELECT id, name FROM users WHERE id = %s", (user_id,))
+    r.setex(cache_key, 3600, json.dumps(user_data))  # 1 hour TTL
+    return user_data</code></pre>
+
+        <h3>33.2 Redis Eviction Policies</h3>
+        <ul>
+          <li><code>allkeys-lru:</code> Evicts Least Recently Used keys when maxmemory is hit (best for general caches).</li>
+          <li><code>volatile-lru:</code> Evicts LRU keys that have an explicit TTL set (best for session stores).</li>
+          <li><code>allkeys-lfu:</code> Evicts Least Frequently Used keys based on access frequency counter.</li>
+        </ul>
+      </div>
+
+      <!-- DAY 34 -->
+      <div class="day-card" id="day34">
+        <div class="day-title"><span class="day-tag">Day 34</span> Distributed Databases &amp; Spanner Consistency</div>
+        
+        <h3>34.1 CAP Theorem Matrix</h3>
+        <div class="diagram">CP (Consistency + Partition Tolerance)  : etcd, Zookeeper, PostgreSQL (Sync)
+AP (Availability + Partition Tolerance) : Cassandra, DynamoDB (Eventual Consistency)</div>
+
+        <h3>34.2 Google Spanner TrueTime API</h3>
+        <p>Google Spanner uses synchronized atomic clocks and GPS receivers in every datacenter to provide the <code>TrueTime API</code>. By guaranteeing a tight time uncertainty bound ($\epsilon \le 1\text{ ms}$), Spanner enforces strict external serializability across global datacenters via commit wait!</p>
+      </div>
+
+      <!-- DAY 35 -->
+      <div class="day-card" id="day35">
+        <div class="day-title"><span class="day-tag">Day 35</span> Query Optimization Workshop</div>
+        <div class="qa-box">
+          <div class="qa-q">Q: How do you fix a slow query performing a Sequential Scan on 10 million rows?</div>
+          <div class="qa-a">A: Run <code>EXPLAIN ANALYZE</code> to check predicate selectivity. Add a B-Tree index on filtered/joined columns. If the query retrieves only specific columns, create a covering index with <code>INCLUDE</code> to convert it to an Index Only Scan.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="week-nav-btns">
+    <a href="week_4.html" class="btn-nav">← Week 4: Networking</a>
+    <a href="week_6.html" class="btn-nav">Week 6: Software Design →</a>
+  </div>
+
+  <footer><p>Week 5 of 12 · SQL &amp; Storage Systems · High-Paid SDE Upskill Program</p></footer>
+</body>
+</html>

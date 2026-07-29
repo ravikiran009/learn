@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Week 3: Operating Systems &amp; Kernel | Upskill SDE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg-main: #0b0f19; --bg-sidebar: #111827; --bg-card: #1f2937; --bg-code: #030712; --border: #374151; --text-main: #f9fafb; --text-muted: #9ca3af; --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.2); --accent-gradient: linear-gradient(135deg, #10b981, #059669); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-main); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    header { background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .brand { font-weight: 800; font-size: 1.15rem; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .mobile-week-scroller { background: var(--bg-sidebar); border-bottom: 1px solid var(--border); padding: 0.6rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.5rem; scrollbar-width: none; }
+    .mobile-week-scroller::-webkit-scrollbar { display: none; }
+    .week-pill { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); padding: 0.4rem 0.85rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .week-pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+    .mobile-day-scroller { background: rgba(15, 23, 42, 0.8); border-bottom: 1px solid var(--border); padding: 0.5rem 0.75rem; overflow-x: auto; white-space: nowrap; display: flex; gap: 0.4rem; scrollbar-width: none; }
+    .mobile-day-scroller::-webkit-scrollbar { display: none; }
+    .day-pill { color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(16, 185, 129, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; flex-shrink: 0; }
+    .app-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex: 1; gap: 1.5rem; padding: 1.25rem 1rem 4rem 1rem; }
+    aside.sidebar { width: 260px; flex-shrink: 0; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; height: fit-content; position: sticky; top: 4.5rem; display: none; }
+    @media (min-width: 900px) { aside.sidebar { display: block; } }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .week-nav { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.5rem; }
+    .week-nav-item { padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+    .week-nav-item.active { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 600; }
+    .day-nav { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; padding-left: 0.5rem; border-left: 1px solid var(--border); }
+    .day-nav a { color: var(--text-muted); font-size: 0.82rem; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; }
+    .day-nav a:hover { color: var(--accent); }
+    main.content { flex: 1; min-width: 0; }
+    .week-header-banner { background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .week-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.15rem 0.5rem; border-radius: 9999px; margin-bottom: 0.4rem; }
+    .week-header-banner h1 { font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .week-header-banner p { color: var(--text-muted); font-size: 0.88rem; }
+    .day-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .day-title { font-size: 1.15rem; font-weight: 700; color: #fff; border-bottom: 2px solid var(--accent); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .day-title span.day-tag { color: var(--accent); }
+    h3 { font-size: 0.98rem; color: var(--accent); margin: 1.1rem 0 0.4rem 0; }
+    p { color: #e5e7eb; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.55; }
+    ul, ol { color: #e5e7eb; padding-left: 1.1rem; margin-bottom: 0.85rem; font-size: 0.9rem; }
+    pre { background: var(--bg-code); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.85rem; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.78rem; color: #e5e7eb; margin: 0.85rem 0; }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.08); color: #38bdf8; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; }
+    .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+    .summary-table th, .summary-table td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+    .summary-table th { background: rgba(16, 185, 129, 0.1); color: var(--accent); }
+    .diagram { background: var(--bg-code); border-left: 3px solid var(--accent); padding: 0.85rem; border-radius: 0 8px 8px 0; font-family: 'Fira Code', monospace; font-size: 0.75rem; color: #38bdf8; white-space: pre; overflow-x: auto; margin: 0.8rem 0; }
+    .qa-box { background: rgba(31, 41, 55, 0.6); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .qa-q { font-weight: 700; color: #fff; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .qa-a { color: #d1d5db; font-size: 0.88rem; line-height: 1.5; }
+    .week-nav-btns { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto 2rem; padding: 0 1rem; }
+    .btn-nav { padding: 0.65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+    .btn-nav:hover { border-color: #38bdf8; color: #38bdf8; }
+    footer { text-align: center; padding: 1.5rem 1rem; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border); background: var(--bg-sidebar); }
+  </style>
+</head>
+<body>
+  <header><div class="header-container"><a href="index.html" class="brand">⚡ Upskill</a></div></header>
+
+  <div class="mobile-week-scroller">
+    <a href="week_1.html" class="week-pill">Week 1</a>
+    <a href="week_2.html" class="week-pill">Week 2</a>
+    <a href="week_3.html" class="week-pill active">Week 3</a>
+    <a href="week_4.html" class="week-pill">Week 4</a>
+    <a href="week_5.html" class="week-pill">Week 5</a>
+    <a href="week_6.html" class="week-pill">Week 6</a>
+    <a href="week_7.html" class="week-pill">Week 7</a>
+    <a href="week_8.html" class="week-pill">Week 8</a>
+    <a href="week_9.html" class="week-pill">Week 9</a>
+    <a href="week_10.html" class="week-pill">Week 10</a>
+    <a href="week_11.html" class="week-pill">Week 11</a>
+    <a href="week_12.html" class="week-pill">Week 12</a>
+  </div>
+
+  <!-- Daywise Horizontal Quick Jump Bar -->
+  <div class="mobile-day-scroller" id="mobileDayScroller">
+    <a href="#day15" class="day-pill">Day 15: Processes</a>
+    <a href="#day16" class="day-pill">Day 16: Threads &amp; Locks</a>
+    <a href="#day17" class="day-pill">Day 17: Virtual Memory</a>
+    <a href="#day18" class="day-pill">Day 18: File Systems &amp; I/O</a>
+    <a href="#day19" class="day-pill">Day 19: Signals &amp; Zombies</a>
+    <a href="#day20" class="day-pill">Day 20: Concurrency Tradeoffs</a>
+    <a href="#day21" class="day-pill">Day 21: Benchmarks Review</a>
+  </div>
+
+  <div class="app-container">
+    <aside class="sidebar">
+      <h3>Curriculum Modules</h3>
+      <ul class="week-nav">
+        <a href="week_1.html" class="week-nav-item"><span>Week 1: Runtime</span></a>
+        <a href="week_2.html" class="week-nav-item"><span>Week 2: Internals</span></a>
+        <a href="week_3.html" class="week-nav-item active"><span>Week 3: OS & Kernel</span> <span>✓</span></a>
+        <a href="week_4.html" class="week-nav-item"><span>Week 4: Networking</span></a>
+        <a href="week_5.html" class="week-nav-item"><span>Week 5: SQL & Storage</span></a>
+        <a href="week_6.html" class="week-nav-item"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item"><span>Week 7: Backend</span></a>
+        <a href="week_8.html" class="week-nav-item"><span>Week 8: Containers & Cloud</span></a>
+        <a href="week_9.html" class="week-nav-item"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item"><span>Week 12: Advanced</span></a>
+      </ul>
+      <div id="sidebarDayNav">
+        <h3>Jump to Topic</h3>
+        <ul class="day-nav">
+          <li><a href="#day15">Day 15: Processes &amp; fork/exec</a></li>
+          <li><a href="#day16">Day 16: Threads &amp; GIL Locks</a></li>
+          <li><a href="#day17">Day 17: Virtual Memory &amp; Paging</a></li>
+          <li><a href="#day18">Day 18: File Systems &amp; epoll</a></li>
+          <li><a href="#day19">Day 19: Signals &amp; Zombies</a></li>
+          <li><a href="#day20">Day 20: CPU vs I/O Concurrency</a></li>
+          <li><a href="#day21">Day 21: Benchmarks &amp; Review</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="week-header-banner">
+        <span class="week-badge">MODULE 03</span>
+        <h1>Operating Systems &amp; Kernel Concepts</h1>
+        <p>Processes, fork/exec, Copy-on-Write, thread scheduling, CPython GIL, virtual memory paging, page faults, address space layout, file descriptors, syscalls, non-blocking I/O multiplexing (epoll), signals, and concurrency tradeoffs.</p>
+      </div>
+
+      <!-- DAY 15 -->
+      <div class="day-card" id="day15">
+        <div class="day-title"><span class="day-tag">Day 15</span> Processes: fork, exec, States &amp; subprocess</div>
+        
+        <h3>15.1 What is a Process?</h3>
+        <p>A process is an isolated executing instance of a program managed by the OS kernel (PCB - Process Control Block). Each process owns a unique PID, isolated virtual address space, file descriptor table, environment variables, and CPU register state.</p>
+
+        <h3>15.2 fork() &amp; Copy-on-Write (COW)</h3>
+        <p><code>fork()</code> clones the calling process. It returns the child PID to the parent and <code>0</code> to the child.</p>
+        <pre><code class="python">import os
+
+pid = os.fork()
+if pid == 0:
+    print(f"Child Process: PID={os.getpid()}, Parent PID={os.getppid()}")
+    os._exit(0)
+else:
+    print(f"Parent Process: Spawned child {pid}")
+    os.wait()  # Wait for child to exit to prevent zombie state!</code></pre>
+        <p><strong>Copy-on-Write (COW):</strong> Modern OS kernels share physical memory pages (read-only) between parent and child until either process writes to a page. Only then is that specific 4 KB page duplicated, making <code>fork()</code> fast and memory efficient.</p>
+
+        <h3>15.3 exec() &amp; Process Image Replacement</h3>
+        <p>The <code>exec()</code> family replaces the current process image (code, heap, stack) with a new binary, while keeping the existing PID and open file descriptors intact.</p>
+
+        <h3>15.4 Process State Machine</h3>
+        <div class="diagram">READY  ---(Scheduler Assigns CPU)---> RUNNING
+RUNNING --(Time Slice Expired)-----> READY
+RUNNING --(Wait for I/O / Lock)----> BLOCKED
+BLOCKED --(I/O Complete / Signal)---> READY
+RUNNING --(calls exit())-----------> ZOMBIE
+ZOMBIE  --(parent calls wait())----> GONE</div>
+
+        <h3>15.5 Environment Variables &amp; subprocess</h3>
+        <pre><code class="python">import subprocess
+
+# Safe subprocess execution with pipe communication
+proc = subprocess.Popen(
+    ['python3', '-c', 'print("Hello from child")'],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    text=True
+)
+stdout, stderr = proc.communicate(timeout=5)
+print(stdout.strip())</code></pre>
+      </div>
+
+      <!-- DAY 16 -->
+      <div class="day-card" id="day16">
+        <div class="day-title"><span class="day-tag">Day 16</span> Threads, Locks, Semaphores &amp; Deadlocks</div>
+        
+        <h3>16.1 Threads vs Processes</h3>
+        <p>Threads share the same virtual address space (heap, global variables, open FDs) within a process, but have their own execution stack, CPU registers, and thread ID.</p>
+
+        <h3>16.2 CPython GIL Mechanics</h3>
+        <p>CPython enforces a Global Interpreter Lock (GIL) ensuring only one thread executes Python bytecode at a time. The GIL is released during I/O operations and long-running C extensions (e.g. NumPy), enabling thread parallelization for I/O-bound tasks but NOT CPU-bound tasks.</p>
+
+        <h3>16.3 Synchronization Primitives</h3>
+        <pre><code class="python">import threading, queue
+
+lock = threading.Lock()
+rlock = threading.RLock()        # Reentrant lock
+semaphore = threading.Semaphore(3)  # Allows max 3 concurrent threads
+event = threading.Event()        # Flag signaling between threads
+
+# Thread-safe queue for worker communication
+task_queue = queue.Queue(maxsize=100)</code></pre>
+
+        <h3>16.4 Deadlocks &amp; Coffman Conditions</h3>
+        <p>A deadlock occurs when two or more threads are blocked forever, each holding a lock the other requires. The 4 Coffman conditions for deadlock:</p>
+        <ol>
+          <li><strong>Mutual Exclusion:</strong> Resource cannot be shared.</li>
+          <li><strong>Hold and Wait:</strong> Holding a resource while waiting for another.</li>
+          <li><strong>No Preemption:</strong> Locks released only voluntarily.</li>
+          <li><strong>Circular Wait:</strong> A circular chain of dependent waiting threads.</li>
+        </ol>
+        <p><em>Prevention: Always enforce strict Lock Ordering across all threads!</em></p>
+      </div>
+
+      <!-- DAY 17 -->
+      <div class="day-card" id="day17">
+        <div class="day-title"><span class="day-tag">Day 17</span> Virtual Memory, Paging, Page Faults &amp; Address Space Layout</div>
+        
+        <h3>17.1 Virtual Memory &amp; Page Tables</h3>
+        <p>The MMU (Memory Management Unit) translates 64-bit virtual memory addresses to physical RAM frames using page tables. The TLB (Translation Lookaside Buffer) acts as a hardware L1 cache for address translations.</p>
+
+        <h3>17.2 Page Faults</h3>
+        <ul>
+          <li><strong>Minor Page Fault:</strong> Requested page is in memory but not mapped (e.g., initial allocation or Copy-on-Write page hit). Handled fast in RAM.</li>
+          <li><strong>Major Page Fault:</strong> Page must be fetched from disk swap space. Causes severe ms-level latency!</li>
+        </ul>
+
+        <h3>17.3 64-Bit Linux Process Address Space Layout</h3>
+        <div class="diagram">0x0000000000000000 ┌─────────────────────────────────┐
+                   │  Unmapped / Guard Page          │
+                   ├─────────────────────────────────┤
+                   │  Text Segment (Code, Read-Only) │
+                   ├─────────────────────────────────┤
+                   │  Data & BSS Segments (Globals)  │
+                   ├─────────────────────────────────┤
+                   │  Heap (grows upward ↑)          │
+                   │  ...                            │
+                   │  Shared Libraries (mmap)        │
+                   │  ...                            │
+                   │  Stack (grows downward ↓)       │
+                   ├─────────────────────────────────┤
+                   │  Kernel Space (Protected)       │
+0xFFFF800000000000 └─────────────────────────────────┘</div>
+
+        <h3>17.4 Memory-Mapped Files (mmap)</h3>
+        <pre><code class="python">import mmap
+
+with open("data.bin", "r+b") as f:
+    mm = mmap.mmap(f.fileno(), 0)
+    print(mm[:10])  # Zero-copy memory access directly from OS page cache!
+    mm.close()</code></pre>
+      </div>
+
+      <!-- DAY 18 -->
+      <div class="day-card" id="day18">
+        <div class="day-title"><span class="day-tag">Day 18</span> File Systems, File Descriptors, Buffering &amp; epoll</div>
+        
+        <h3>18.1 File Descriptors &amp; Syscalls</h3>
+        <p>File descriptors are non-negative integers assigned by the kernel (<code>0=stdin</code>, <code>1=stdout</code>, <code>2=stderr</code>). System calls (<code>open</code>, <code>read</code>, <code>write</code>, <code>close</code>) trigger a CPU privilege mode switch from User Mode to Kernel Mode.</p>
+
+        <h3>18.2 Buffering &amp; Page Cache</h3>
+        <div class="diagram">Write Path: Python Code -> Python User Buffer (f.flush()) -> OS Page Cache (os.fsync()) -> Disk Controller Queue -> NVMe/SSD</div>
+
+        <h3>18.3 Non-Blocking I/O &amp; epoll Multiplexing</h3>
+        <p>Instead of spawning one thread per socket, <code>epoll</code> (Linux) enables monitoring millions of open file descriptors in $O(1)$ event time. This forms the foundation of CPython's <code>asyncio</code> event loop!</p>
+      </div>
+
+      <!-- DAY 19 -->
+      <div class="day-card" id="day19">
+        <div class="day-title"><span class="day-tag">Day 19</span> Signals, Zombie Processes &amp; Graceful Shutdown</div>
+        
+        <h3>19.1 POSIX Signals</h3>
+        <ul>
+          <li><code>SIGTERM (15):</code> Standard request for graceful application termination.</li>
+          <li><code>SIGKILL (9):</code> Immediate uncatchable kill by kernel.</li>
+          <li><code>SIGINT (2):</code> Keyboard interrupt (Ctrl+C).</li>
+          <li><code>SIGCHLD (17):</code> Emitted when a child process terminates or stops.</li>
+        </ul>
+
+        <h3>19.2 Zombie &amp; Orphan Processes</h3>
+        <p>A <strong>Zombie</strong> is a terminated process whose parent has not yet invoked <code>wait()</code> to read its exit status code. An <strong>Orphan</strong> is a running process whose parent died; it is automatically adopted by <code>init</code> (PID 1) or a system subreaper.</p>
+
+        <h3>19.3 Production Graceful Shutdown Pattern</h3>
+        <pre><code class="python">import signal, sys, time, threading
+
+shutdown_event = threading.Event()
+
+def signal_handler(signum, frame):
+    print(f"\nCaught signal {signum}. Initiating graceful shutdown...")
+    shutdown_event.set()
+
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
+# Worker loop checking shutdown_event
+def worker():
+    while not shutdown_event.is_set():
+        time.sleep(0.5)
+
+t = threading.Thread(target=worker)
+t.start()
+shutdown_event.wait()  # Block main thread until signal received
+t.join(timeout=5)
+print("Clean shutdown complete.")</code></pre>
+      </div>
+
+      <!-- DAY 20 -->
+      <div class="day-card" id="day20">
+        <div class="day-title"><span class="day-tag">Day 20</span> Threads vs Multiprocessing vs asyncio — CPU vs I/O Tradeoffs</div>
+        
+        <h3>20.1 Concurrency Strategy Selection Matrix</h3>
+        <table class="summary-table">
+          <thead>
+            <tr><th>Criterion</th><th>threading</th><th>multiprocessing</th><th>asyncio</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Target Workload</td><td>I/O-Bound (Disk/Net)</td><td>CPU-Bound (Math/ML)</td><td>High-Concurrency I/O</td></tr>
+            <tr><td>Parallelism (Multi-Core)</td><td>No (CPython GIL)</td><td>Yes (Independent GILs)</td><td>No (Single Event Loop)</td></tr>
+            <tr><td>Memory Overhead per Worker</td><td>~50 KB per thread</td><td>~15–30 MB per process</td><td>~2–3 KB per coroutine</td></tr>
+            <tr><td>Max Practical Concurrency</td><td>~1,000 threads</td><td>~CPU core count</td><td>10,000+ coroutines</td></tr>
+            <tr><td>Inter-Worker Communication</td><td>Shared Memory (Locks)</td><td>IPC (Pipes, Queue, SharedMem)</td><td>In-Memory Queue / Futures</td></tr>
+          </tbody>
+        </table>
+
+        <h3>20.2 Combining asyncio with ProcessPoolExecutor</h3>
+        <pre><code class="python">import asyncio
+from concurrent.futures import ProcessPoolExecutor
+
+def cpu_heavy_calculation(data):
+    return sum(i * i for i in range(data))
+
+async def main():
+    loop = asyncio.get_running_loop()
+    with ProcessPoolExecutor() as pool:
+        # Offload CPU work from event loop to process pool
+        result = await loop.run_in_executor(pool, cpu_heavy_calculation, 10_000_000)
+        print(f"Result: {result}")
+
+# asyncio.run(main())</code></pre>
+      </div>
+
+      <!-- DAY 21 -->
+      <div class="day-card" id="day21">
+        <div class="day-title"><span class="day-tag">Day 21</span> Review &amp; Concurrency Benchmarks</div>
+        
+        <h3>21.1 Benchmark Findings</h3>
+        <div class="diagram">I/O Benchmark (100 network calls):
+  Serial       : ~10,000 ms
+  Threading    : ~500 ms
+  Asyncio      : ~120 ms (Highest throughput!)
+
+CPU Benchmark (8 heavy math tasks on 4 cores):
+  Serial       : ~8,000 ms
+  Threading    : ~8,100 ms (GIL slowdown due to lock contention!)
+  Multiprocess : ~2,100 ms (True 4-core scaling!)</div>
+
+        <h3>21.2 Week 3 Interview Q&amp;A</h3>
+        <div class="qa-box">
+          <div class="qa-q">Q: What is Copy-on-Write (COW) and how does it optimize fork()?</div>
+          <div class="qa-a">A: Copy-on-Write marks parent memory pages as read-only and shares them with the child process upon <code>fork()</code>. Memory pages are only duplicated when a process attempts to write to them, making process creation fast and memory-efficient.</div>
+        </div>
+        <div class="qa-box">
+          <div class="qa-q">Q: Why does CPython use the GIL and when is it released?</div>
+          <div class="qa-a">A: The GIL simplifies memory management by protecting reference count updates from race conditions. It is released during I/O system calls, long-running C extensions (like NumPy), or every 5ms during bytecode execution.</div>
+        </div>
+        <div class="qa-box">
+          <div class="qa-q">Q: Why is epoll superior to select for high-concurrency servers?</div>
+          <div class="qa-a">A: <code>select()</code> scans the entire file descriptor array in $O(N)$ time on every call and is capped at 1024 descriptors. <code>epoll</code> uses an in-kernel red-black tree and event list to notify active sockets in $O(1)$ time, scaling to millions of connections.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="week-nav-btns">
+    <a href="week_2.html" class="btn-nav">← Week 2: Internals</a>
+    <a href="week_4.html" class="btn-nav">Week 4: Networking →</a>
+  </div>
+
+  <footer><p>Week 3 of 12 · OS &amp; Kernel Concepts · High-Paid SDE Upskill Program</p></footer>
+</body>
+</html>

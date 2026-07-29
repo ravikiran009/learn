@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Upskill</title>
+  <title>Upskill - Week 1: Python Runtime Fundamentals</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -105,6 +105,7 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: all 0.2s ease;
+      text-decoration: none;
     }
 
     .week-pill.active {
@@ -201,6 +202,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      text-decoration: none;
     }
 
     .week-nav-item:hover {
@@ -411,29 +413,24 @@
       font-weight: 600;
     }
 
-    .output-box {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(52, 211, 153, 0.3);
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.8rem;
-      color: #34d399;
-      margin: 0.5rem 0 1rem 0;
+    .warning-box {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin: 0.85rem 0;
+      color: #fbbf24;
+      font-size: 0.88rem;
     }
 
-    .placeholder-card {
-      text-align: center;
-      padding: 2.5rem 1rem;
-      background: var(--bg-card);
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-    }
-
-    .placeholder-card h2 {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      margin-bottom: 0.4rem;
+    .info-box {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin: 0.85rem 0;
+      color: #38bdf8;
+      font-size: 0.88rem;
     }
 
     footer {
@@ -443,6 +440,31 @@
       font-size: 0.8rem;
       border-top: 1px solid var(--border);
       background: var(--bg-sidebar);
+    }
+
+    .week-nav-btns {
+      display: flex;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      padding: 0 1rem;
+    }
+
+    .btn-nav {
+      padding: 0.65rem 1.3rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
     }
 
     /* Mobile Enhancements (<768px) */
@@ -479,27 +501,26 @@
   <!-- Top Sticky Header -->
   <header>
     <div class="header-container">
-      <a href="#" class="brand">⚡ Upskill</a>
+      <a href="index.html" class="brand">⚡ Upskill</a>
     </div>
   </header>
 
   <!-- Horizontal Scrollable Week Selector for Mobile -->
   <div class="mobile-week-scroller" id="mobileWeekScroller">
-    <div class="week-pill active" onclick="switchWeek(1)" id="pill-w1">Week 1</div>
-    <div class="week-pill" onclick="switchWeek(2)" id="pill-w2">Week 2</div>
-    <div class="week-pill" onclick="switchWeek(3)" id="pill-w3">Week 3</div>
-    <div class="week-pill" onclick="switchWeek(4)" id="pill-w4">Week 4</div>
-    <div class="week-pill" onclick="switchWeek(5)" id="pill-w5">Week 5</div>
-    <div class="week-pill" onclick="switchWeek(6)" id="pill-w6">Week 6</div>
-    <div class="week-pill" onclick="switchWeek(7)" id="pill-w7">Week 7</div>
-    <div class="week-pill" onclick="switchWeek(8)" id="pill-w8">Week 8</div>
-    <div class="week-pill" onclick="switchWeek(9)" id="pill-w9">Week 9</div>
-    <div class="week-pill" onclick="switchWeek(10)" id="pill-w10">Week 10</div>
-    <div class="week-pill" onclick="switchWeek(11)" id="pill-w11">Week 11</div>
-    <div class="week-pill" onclick="switchWeek(12)" id="pill-w12">Week 12</div>
+    <a href="week_1.html" class="week-pill active" id="pill-w1">Week 1</a>
+    <a href="week_2.html" class="week-pill" id="pill-w2">Week 2</a>
+    <a href="week_3.html" class="week-pill" id="pill-w3">Week 3</a>
+    <a href="week_4.html" class="week-pill" id="pill-w4">Week 4</a>
+    <a href="week_5.html" class="week-pill" id="pill-w5">Week 5</a>
+    <a href="week_6.html" class="week-pill" id="pill-w6">Week 6</a>
+    <a href="week_7.html" class="week-pill" id="pill-w7">Week 7</a>
+    <a href="week_8.html" class="week-pill" id="pill-w8">Week 8</a>
+    <a href="week_9.html" class="week-pill" id="pill-w9">Week 9</a>
+    <a href="week_10.html" class="week-pill" id="pill-w10">Week 10</a>
+    <a href="week_12.html" class="week-pill" id="pill-w12">Week 12</a>
   </div>
 
-  <!-- Horizontal Day Quick Jump for Mobile -->
+  <!-- Horizontal Day Quick Jump Bar -->
   <div class="mobile-day-scroller" id="mobileDayScroller">
     <a href="#day1" class="day-pill">Day 1: Execution</a>
     <a href="#day2" class="day-pill">Day 2: PyObject</a>
@@ -517,19 +538,18 @@
     <aside class="sidebar">
       <h3>Curriculum Modules</h3>
       <ul class="week-nav">
-        <li class="week-nav-item active" onclick="switchWeek(1)" id="nav-w1"><span>Week 1: Runtime</span> <span>✓</span>
-        </li>
-        <li class="week-nav-item" onclick="switchWeek(2)" id="nav-w2"><span>Week 2: Internals</span></li>
-        <li class="week-nav-item" onclick="switchWeek(3)" id="nav-w3"><span>Week 3: OS & Kernel</span></li>
-        <li class="week-nav-item" onclick="switchWeek(4)" id="nav-w4"><span>Week 4: Networking</span></li>
-        <li class="week-nav-item" onclick="switchWeek(5)" id="nav-w5"><span>Week 5: SQL & Storage</span></li>
-        <li class="week-nav-item" onclick="switchWeek(6)" id="nav-w6"><span>Week 6: Software Design</span></li>
-        <li class="week-nav-item" onclick="switchWeek(7)" id="nav-w7"><span>Week 7: Backend</span></li>
-        <li class="week-nav-item" onclick="switchWeek(8)" id="nav-w8"><span>Week 8: Containers & Cloud</span></li>
-        <li class="week-nav-item" onclick="switchWeek(9)" id="nav-w9"><span>Week 9: Distributed Systems</span></li>
-        <li class="week-nav-item" onclick="switchWeek(10)" id="nav-w10"><span>Week 10: ML & DL</span></li>
-        <li class="week-nav-item" onclick="switchWeek(11)" id="nav-w11"><span>Week 11: LLM Systems</span></li>
-        <li class="week-nav-item" onclick="switchWeek(12)" id="nav-w12"><span>Week 12: Advanced</span></li>
+        <a href="week_1.html" class="week-nav-item active" id="nav-w1"><span>Week 1: Runtime</span> <span>✓</span></a>
+        <a href="week_2.html" class="week-nav-item" id="nav-w2"><span>Week 2: Internals</span></a>
+        <a href="week_3.html" class="week-nav-item" id="nav-w3"><span>Week 3: OS & Kernel</span></a>
+        <a href="week_4.html" class="week-nav-item" id="nav-w4"><span>Week 4: Networking</span></a>
+        <a href="week_5.html" class="week-nav-item" id="nav-w5"><span>Week 5: SQL & Storage</span></a>
+        <a href="week_6.html" class="week-nav-item" id="nav-w6"><span>Week 6: Software Design</span></a>
+        <a href="week_7.html" class="week-nav-item" id="nav-w7"><span>Week 7: Backend</span></a>
+        <a href="week_8.html" class="week-nav-item" id="nav-w8"><span>Week 8: Containers & Cloud</span></a>
+        <a href="week_9.html" class="week-nav-item" id="nav-w9"><span>Week 9: Distributed Systems</span></a>
+        <a href="week_10.html" class="week-nav-item" id="nav-w10"><span>Week 10: ML & DL</span></a>
+        <a href="week_11.html" class="week-nav-item" id="nav-w11"><span>Week 11: LLM Systems</span></a>
+        <a href="week_12.html" class="week-nav-item" id="nav-w12"><span>Week 12: Advanced</span></a>
       </ul>
 
       <div id="sidebarDayNav" style="display:block;">
@@ -593,6 +613,13 @@
     PyObject *co_freevars;      /* Tuple of closure free variable names */
     PyObject *co_cellvars;      /* Tuple of local variables referenced by inner nested functions */
 };</code></pre>
+          <pre><code>import dis
+def add(a, b): return a + b
+
+print(add.__code__.co_varnames)   # ('a', 'b')
+print(add.__code__.co_argcount)   # 2
+print(add.__code__.co_consts)     # (None,)
+dis.dis(add)                       # disassemble bytecode</code></pre>
 
           <h3>3. Execution Frames (<code>PyFrameObject</code>)</h3>
           <p>While <code>PyCodeObject</code> stores static bytecode instructions, stateful function execution occurs
@@ -609,6 +636,17 @@
     int f_state;                  /* Frame execution state (created, executing, suspended, cleared) */
     PyObject *f_localsplus[1];    /* Dynamic array for local variables, cell variables, and evaluation stack */
 };</code></pre>
+          <pre><code>import sys, traceback
+
+def show_frame():
+    frame = sys._getframe()
+    print(frame.f_code.co_name)       # 'show_frame'
+    print(frame.f_back.f_code.co_name)  # caller's name
+
+def a(): b()
+def b(): c()
+def c(): traceback.print_stack()  # Trace the LIFO frame stack
+a()</code></pre>
 
           <h3>4. C Stack vs Python Frame Stack</h3>
           <p><b>C Call Stack:</b> Standard OS native thread stack managed by CPU hardware registers (ESP/RSP). Native C
@@ -618,7 +656,7 @@
             linked via <code>f_back</code> pointers.</p>
           <p><b>Key Insight:</b> Python frame objects reside on the heap rather than the native C thread stack. This
             architectural decoupling allows coroutines and generator frames to pause, remain in memory after C functions
-            return, and resume execution seamlessly.</p>
+            return, and resume execution seamlessly. Recursion depth limit (default 1000) is a soft constraint set via <code>sys.setrecursionlimit()</code>.</p>
 
           <h3>5. Scope & Name Resolution (LEGB)</h3>
           <ul>
@@ -629,6 +667,10 @@
             <li><b>Global (G):</b> Hash lookup in <code>f_globals</code> dict via <code>LOAD_GLOBAL</code>.</li>
             <li><b>Built-in (B):</b> Fallback hash lookup in <code>f_builtins</code> dict.</li>
           </ul>
+          <p><b>Scoping Keywords:</b> <code>global x</code> binds a name to module global scope; <code>nonlocal x</code> binds to nearest enclosing scope.</p>
+          <div class="warning-box">
+            ⚠️ <b>Closure Late Binding Trap:</b> <code>funcs = [lambda: i for i in range(3)]</code> returns <code>2</code> for all calls because <code>i</code> is captured by reference. Fix by binding at definition time: <code>lambda i=i: i</code>.
+          </div>
 
           <h3>6. Global Interpreter Lock (GIL) & Thread State</h3>
           <p>The GIL (<code>PyThread_type_lock</code>) enforces atomic execution by allowing only one OS thread to run
@@ -645,8 +687,7 @@ def demo():
     print(a + b)
 
 dis.dis(demo)</code></pre>
-<pre><code>
-  LOAD_CONST          1 (5)
+          <pre><code>  LOAD_CONST          1 (5)
   STORE_FAST          0 (a)
   LOAD_CONST          2 (7)
   STORE_FAST          1 (b)
@@ -655,8 +696,7 @@ dis.dis(demo)</code></pre>
   LOAD_FAST           1 (b)
   BINARY_ADD
   CALL_FUNCTION       1
-  RETURN_VALUE
-</code></pre>
+  RETURN_VALUE</code></pre>
 
           <h3>8. Variable Reference Semantics & Mutability</h3>
           <p>Variables in Python do not contain values directly — they hold memory reference pointers
@@ -670,7 +710,13 @@ print(a)      # [1, 2, 3, 4] -- Shared mutable heap list payload
 x = [1, 2]
 y = [1, 2]
 print(x == y)  # True (Equal value state)
-print(x is y)  # False (Distinct memory reference pointers)</code></pre>
+print(x is y)  # False (Distinct memory reference pointers)
+
+# Rebinding vs Mutation
+a = [1, 2]
+b = a
+a = [3, 4]   # rebinds 'a', 'b' still points to original [1, 2]
+print(b)     # -> [1, 2]</code></pre>
 
           <h3>9. Compilation & Frame Allocation Flowchart</h3>
           <div class="diagram">Source (.py) ──&gt; Lexer ──&gt; Tokens ──&gt; PEG Parser ──&gt; AST ──&gt; Symbol Table
@@ -680,13 +726,12 @@ print(x is y)  # False (Distinct memory reference pointers)</code></pre>
             │
             v
             +-------------------------------------------------------------------------------------------------------+
-            | PyFrameObject (Linked List Node on C-Heap) |
-            | [f_back] ──&gt; Pointer to caller's PyFrameObject |
-            | [f_code] ──&gt; Pointer to PyCodeObject (bytecode, co_consts, co_names) |
-            | [f_globals] ──&gt; Pointer to Globals dict |
-            | [f_localsplus]──&gt; Array: [Locals (O(1) LOAD_FAST)] [Cell Vars (LOAD_DEREF)] [Evaluation Stack] |
-            +-------------------------------------------------------------------------------------------------------+
-          </div>
+            | PyFrameObject (Linked List Node on C-Heap)                                                            |
+            | [f_back] ──&gt; Pointer to caller's PyFrameObject                                                        |
+            | [f_code] ──&gt; Pointer to PyCodeObject (bytecode, co_consts, co_names)                                  |
+            | [f_globals] ──&gt; Pointer to Globals dict                                                              |
+            | [f_localsplus]──&gt; Array: [Locals (O(1) LOAD_FAST)] [Cell Vars (LOAD_DEREF)] [Evaluation Stack]         |
+            +-------------------------------------------------------------------------------------------------------+</div>
 
           <h3>10. Day 1 Summary</h3>
           <table class="summary-table">
@@ -742,7 +787,8 @@ print(x)        # 10</code></pre>
 
           <h3>2. What is a <code>PyObject</code>?</h3>
           <p>Internally in CPython, every object begins with a C structure header named <code>PyObject</code> (defined
-            in <code>Include/object.h</code>):</p>
+            in <code>Include/object.h</code>):
+          </p>
           <pre><code>typedef struct _object {
     _PyObject_HEAD_EXTRA        /* Doubly-linked list pointers used only in DEBUG builds */
     ssize_t ob_refcnt;           /* 64-bit Reference Count */
@@ -758,21 +804,21 @@ typedef struct {
             ===================================================================================
             For x = 100 (Integer Object):
             +---------------------------------------------------------------------------------+
-            | PyObject Header: |
-            | ob_refcnt : 1 |
-            | ob_type : Pointer to PyLong_Type (&lt;class 'int'&gt;) |
+            | PyObject Header:                                                                |
+            | ob_refcnt : 1                                                                   |
+            | ob_type   : Pointer to PyLong_Type (&lt;class 'int'&gt;)                            |
             +---------------------------------------------------------------------------------+
-            | Value Payload: 100 |
+            | Value Payload: 100                                                              |
             +---------------------------------------------------------------------------------+
 
             For name = "Tony" (String Object):
             +---------------------------------------------------------------------------------+
-            | PyVarObject Header: |
-            | ob_refcnt : 1 |
-            | ob_type : Pointer to PyUnicode_Type (&lt;class 'str'&gt;) |
-            | ob_size : 4 (length) |
+            | PyVarObject Header:                                                             |
+            | ob_refcnt : 1                                                                   |
+            | ob_type   : Pointer to PyUnicode_Type (&lt;class 'str'&gt;)                           |
+            | ob_size   : 4 (length)                                                          |
             +---------------------------------------------------------------------------------+
-            | Value Payload: "Tony" |
+            | Value Payload: "Tony"                                                           |
             +---------------------------------------------------------------------------------+</div>
 
           <h3>3. Type Objects & Metaclasses (<code>PyTypeObject</code>)</h3>
@@ -823,27 +869,29 @@ del a          # Reference Count = 0 -&gt; Memory freed immediately!</code></pre
             CPYTHON 3-TIER PYMALLOC ARCHITECTURE
             ===================================================================================
             [ Tier 3: Python High-Level Application Objects (dict, list, int, str, frame) ]
-            │ (PyObject_New / PyObject_GC_New)
-            v
+                                      │ (PyObject_New / PyObject_GC_New)
+                                      v
             [ Tier 2: pymalloc Small Object Allocator (Objects &lt;= 512 bytes) ]
             ┌──────────────────────────┴──────────────────────────┐
-            Arenas (256 KB) Large Objects (&gt; 512B)
-            └─ Pools (4 KB) └─ Standard C malloc()
-            └─ Blocks (8 to 512 bytes, 8-byte aligned)
-            │
-            v
+            Arenas (256 KB)                                Large Objects (&gt; 512B)
+            └─ Pools (4 KB)                                └─ Standard C malloc()
+               └─ Blocks (8 to 512 bytes, 8-byte aligned)
+                                      │
+                                      v
             [ Tier 0: OS Kernel Virtual Memory Manager (mmap / brk / VirtualAlloc) ]</div>
 
           <h3>6. Small Int Singletons, String Interning & Free Lists</h3>
           <ul>
             <li><b>Small Integer Cache (-5 to 256):</b> CPython pre-allocates an array of singletons at bootstrap. All
               variable bindings in this range share exact memory address pointers.</li>
-            <li><b>String Interning (<code>PyUnicode_InternInPlace</code>):</b> Identifier names are interned in a
+            <li><b>String Interning (<code>PyUnicode_InternInPlace</code> / <code>sys.intern()</code>):</b> Identifier names are interned in a
               global dictionary, enabling $O(1)$ fast pointer comparison (<code>is</code>) in C.</li>
             <li><b>Object Free Lists:</b> Recycles memory buffers for floats, tuples, lists, and frame objects to bypass
               allocator churn.</li>
           </ul>
-          <pre><code>a = 5
+          <pre><code>import sys
+
+a = 5
 b = 5
 print(a is b)  # True (Reuses cached singleton)
 
@@ -853,7 +901,11 @@ print(s1 is s2)  # True (String interning active)
 
 s3 = "hello world!"
 s4 = "".join(["hello", " world!"])
-print(s3 is s4)  # False (Distinct heap instances, same value)</code></pre>
+print(s3 is s4)  # False (Distinct heap instances, same value)
+
+s5 = sys.intern(s4)
+s6 = sys.intern("hello world!")
+print(s5 is s6)  # True (Explicit sys.intern)</code></pre>
 
           <h3>7. Mutable vs. Immutable Objects</h3>
           <ul>
@@ -963,17 +1015,24 @@ gc.collect() # Triggers trial deletion sweep &amp; frees unreachable cycle</code
 
 code = "x = 10 + 20"
 tree = ast.parse(code)
-print(ast.dump(tree, indent=4))</code></pre>
+print(ast.dump(tree, indent=4))
+
+# AST Transformer example:
+class LoggingTransformer(ast.NodeTransformer):
+    def visit_FunctionDef(self, node):
+        log_stmt = ast.parse('print("Entering: ' + node.name + '")').body[0]
+        node.body.insert(0, log_stmt)
+        return node</code></pre>
           <div class="diagram">===================================================================================
             ABSTRACT SYNTAX TREE (AST) VISUALIZATION
             ===================================================================================
             Module
             └── Assign
-            ├── Target: Name(id='x', ctx=Store())
-            └── Value: BinOp
-            ├── left: Constant(value=10)
-            ├── op: Add()
-            └── right: Constant(value=20)</div>
+                ├── Target: Name(id='x', ctx=Store())
+                └── Value: BinOp
+                    ├── left: Constant(value=10)
+                    ├── op: Add()
+                    └── right: Constant(value=20)</div>
           <p><b>AST Optimization (<code>Python/ast_opt.c</code>):</b> CPython performs constant folding at compile time.
             For instance, constant mathematical expressions like <code>3600 * 24</code> are evaluated and folded into
             <code>86400</code> directly inside the AST prior to bytecode generation.
@@ -984,10 +1043,8 @@ print(ast.dump(tree, indent=4))</code></pre>
             opcode, 1 byte argument). Inspect bytecode with <code>dis.dis()</code>:</p>
           <pre><code>import dis
 
-def add():
-    x = 2
-    y = 3
-    return x + y
+def add(a, b):
+    return a + b
 
 dis.dis(add)</code></pre>
           <p>Common bytecode opcodes:</p>
@@ -1018,11 +1075,11 @@ goto *targets[opcode];</code></pre>
           <div class="diagram">===================================================================================
             PVM EVALUATION STACK EXECUTION STEP-BY-STEP
             ===================================================================================
-            Step 1: LOAD_CONST 5 Step 2: LOAD_CONST 7 Step 3: BINARY_ADD Step 4: STORE_FAST result
-            | | | 7 | | | | |
-            | 5 | | 5 | | 12 | | (empty)|
-            +-------+ +-------+ +-------+ +-------+
-            Stack: [5] Stack: [5, 7] Stack: [12] result = 12</div>
+            Step 1: LOAD_CONST 5   Step 2: LOAD_CONST 7   Step 3: BINARY_ADD   Step 4: STORE_FAST result
+            |       |              |   7   |              |        |           |        |
+            |   5   |              |   5   |              |   12   |           | (empty)|
+            +-------+              +-------+              +--------+           +--------+
+            Stack: [5]             Stack: [5, 7]          Stack: [12]          result = 12</div>
 
           <h3>4. 16-Bit Wordcode Layout & Adaptive Opcodes (PEP 659)</h3>
           <p>In Python 3.11+, <code>PyEval_EvalFrameDefault</code> dynamically transforms generic opcodes like
@@ -1033,21 +1090,21 @@ goto *targets[opcode];</code></pre>
             16-BIT WORDCODE INSTRUCTION LAYOUT (Python 3.11+)
             ===================================================================================
             +-------------------------------------+-------------------------------------+
-            | Opcode (1 Byte / 8-bit) | Argument (1 Byte / 8-bit) |
+            |     Opcode (1 Byte / 8-bit)        |      Argument (1 Byte / 8-bit)     |
             +-------------------------------------+-------------------------------------+
 
             ===================================================================================
             PEP 659 ADAPTIVE OPCODE SPECIALIZATION FLOWCHART
             ===================================================================================
             PyEval_EvalFrameDefault() Bytecode Loop
-            │
+                        │
             Check Warm Counter / Adaptive State
-            / \
-            (Cold) / \ (Warm - Specialize)
-            v v
-            Generic Opcode Specialized Opcode (e.g. LOAD_GLOBAL_MODULE)
-            - Hashing Dict - Checks Cached Version Guard
-            - Search globals - Fetches Value via Direct C Array Pointer O(1)</div>
+                       / \
+           (Cold)     /   \   (Warm - Specialize)
+                     v     v
+        Generic Opcode     Specialized Opcode (e.g. LOAD_GLOBAL_MODULE)
+        - Hashing Dict     - Checks Cached Version Guard
+        - Search globals   - Fetches Value via Direct C Array Pointer O(1)</div>
 
           <h3>5. Scope & Name Resolution (LEGB Rule)</h3>
           <p>Variable lookups strictly follow the LEGB hierarchy:</p>
@@ -1070,62 +1127,66 @@ def outer():
     print(x)  # Output: Modified Enclosing
 
 outer()</code></pre>
+          <div class="warning-box">
+            ⚠️ <b>Compile-Time Scope Determination:</b> Python decides whether a variable is local at compile time. Assigning to a variable anywhere in a function body makes it local throughout the entire function scope, causing <code>UnboundLocalError</code> if read before assignment.
+          </div>
 
           <h3>6. End-to-End Compiler to PVM Execution Flowchart</h3>
           <div class="diagram">===================================================================================
             END-TO-END CPYTHON PROGRAM EXECUTION ARCHITECTURE
             ===================================================================================
             Source Code (.py) ──> Lexer (Tokens) ──> PEG Parser ──> AST ──> Compiler
-            │
-            v
+                                                                            │
+                                                                            v
             PVM Evaluation Stack <── PyEval_EvalFrameDefault() <── PyCodeObject (Bytecode)</div>
-              <h3>7. Day 3 Summary</h3>
-              <table class="summary-table">
-                <thead>
-                  <tr>
-                    <th>Topic</th>
-                    <th>Key Idea</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>AST</td>
-                    <td>Grammatical tree representation generated by CPython PEG parser.</td>
-                  </tr>
-                  <tr>
-                    <td>Bytecode</td>
-                    <td>Low-level instructions executed by the stack-based PVM.</td>
-                  </tr>
-                  <tr>
-                    <td>dis Module</td>
-                    <td>Disassembles Python functions into human-readable opcodes.</td>
-                  </tr>
-                  <tr>
-                    <td>LEGB Rule</td>
-                    <td>Resolution order: Local &rarr; Enclosing &rarr; Global &rarr; Built-in.</td>
-                  </tr>
-                  <tr>
-                    <td>global & nonlocal</td>
-                    <td>Explicitly bind variables to global or enclosing frame scopes.</td>
-                  </tr>
-                </tbody>
-              </table>
-          </div>
 
-          <!-- DAY 4 -->
-          <div class="day-card" id="day4">
-            <div class="day-title"><span class="day-tag">Day 4</span> Function Objects, Vectorcall, Closures & Default
-              Args</div>
+          <h3>7. Day 3 Summary</h3>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Key Idea</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AST</td>
+                <td>Grammatical tree representation generated by CPython PEG parser.</td>
+              </tr>
+              <tr>
+                <td>Bytecode</td>
+                <td>Low-level instructions executed by the stack-based PVM.</td>
+              </tr>
+              <tr>
+                <td>dis Module</td>
+                <td>Disassembles Python functions into human-readable opcodes.</td>
+              </tr>
+              <tr>
+                <td>LEGB Rule</td>
+                <td>Resolution order: Local &rarr; Enclosing &rarr; Global &rarr; Built-in.</td>
+              </tr>
+              <tr>
+                <td>global & nonlocal</td>
+                <td>Explicitly bind variables to global or enclosing frame scopes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-            <p>Day 4 dives into how Python functions operate as first-class objects, function object internals
-              (<code>__code__</code>, <code>__defaults__</code>), closure mechanics (<code>PyCellObject</code>),
-              decorator patterns, <code>*args</code>/<code>**kwargs</code> unpacking, and the classic mutable default
-              argument trap.</p>
+        <!-- DAY 4 -->
+        <div class="day-card" id="day4">
+          <div class="day-title"><span class="day-tag">Day 4</span> Function Objects, Vectorcall, Closures & Default
+            Args</div>
 
-            <h3>1. Functions as First-Class Objects</h3>
-            <p>Functions in Python can be assigned to variables, stored in collections, passed as arguments, and
-              returned from other functions:</p>
-            <pre><code>def add(a, b):
+          <p>Day 4 dives into how Python functions operate as first-class objects, function object internals
+            (<code>__code__</code>, <code>__defaults__</code>), closure mechanics (<code>PyCellObject</code>),
+            decorator patterns, <code>*args</code>/<code>**kwargs</code> unpacking, and the classic mutable default
+            argument trap.</p>
+
+          <h3>1. Functions as First-Class Objects</h3>
+          <p>Functions in Python can be assigned to variables, stored in collections, passed as arguments, and
+            returned from other functions:</p>
+          <pre><code>def add(a, b):
     return a + b
 
 def multiply(a, b):
@@ -1135,11 +1196,11 @@ ops = [add, multiply]
 print(ops[0](2, 3))  # 5
 print(ops[1](2, 3))  # 6</code></pre>
 
-            <h3>2. Function Internals (<code>PyFunctionObject</code>) & Vectorcall (PEP 590)</h3>
-            <p>When defining a function, CPython instantiates a <code>PyFunctionObject</code> defined in
-              <code>Include/funcobject.h</code>:
-            </p>
-            <pre><code>typedef struct {
+          <h3>2. Function Internals (<code>PyFunctionObject</code>) & Vectorcall (PEP 590)</h3>
+          <p>When defining a function, CPython instantiates a <code>PyFunctionObject</code> defined in
+            <code>Include/funcobject.h</code>:
+          </p>
+          <pre><code>typedef struct {
     PyObject_HEAD
     PyObject *func_globals;     /* Active global namespace dictionary */
     PyObject *func_builtins;    /* Active builtin namespace dictionary */
@@ -1151,25 +1212,25 @@ print(ops[1](2, 3))  # 6</code></pre>
     PyObject *func_annotations; /* Type annotations dictionary */
     vectorcallfunc vectorcall;  /* Vectorcall fast C-style function pointer */
 } PyFunctionObject;</code></pre>
-            <pre><code>def greet(name, greeting="Hello"):
+          <pre><code>def greet(name, greeting="Hello"):
     return f"{greeting}, {name}"
 
 print(greet.__name__)                # 'greet'
 print(greet.__defaults__)            # ('Hello',)
 print(greet.__code__.co_varnames)    # ('name', 'greeting')</code></pre>
-            <p>The <b>Vectorcall Fast-Call Protocol</b> (PEP 590) optimizes call sites by passing function arguments as
-              a raw C array pointer (<code>PyObject *const *args</code>), bypassing intermediate tuple/dict heap
-              allocations and GC overhead.</p>
+          <p>The <b>Vectorcall Fast-Call Protocol</b> (PEP 590) optimizes call sites by passing function arguments as
+            a raw C array pointer (<code>PyObject *const *args</code>), bypassing intermediate tuple/dict heap
+            allocations and GC overhead.</p>
 
-            <h3>3. Closure Mechanics & Cell Objects (<code>PyCellObject</code>)</h3>
-            <p>A closure is an inner function that retains access to variables from its enclosing lexical scope even
-              after the outer function frame has popped from the stack. Shared free variables are wrapped in
-              heap-allocated <code>PyCellObject</code> instances (<code>Include/cellobject.h</code>):</p>
-            <pre><code>typedef struct {
+          <h3>3. Closure Mechanics & Cell Objects (<code>PyCellObject</code>)</h3>
+          <p>A closure is an inner function that retains access to variables from its enclosing lexical scope even
+            after the outer function frame has popped from the stack. Shared free variables are wrapped in
+            heap-allocated <code>PyCellObject</code> instances (<code>Include/cellobject.h</code>):</p>
+          <pre><code>typedef struct {
     PyObject_HEAD
     PyObject *ob_ref; /* Pointer to shared heap object */
 } PyCellObject;</code></pre>
-            <pre><code>def power(n):
+          <pre><code>def power(n):
     def calculate(x):
         return x ** n
     return calculate
@@ -1183,44 +1244,60 @@ print(cube(5))    # 125
 # Inspect closure cell value:
 print(square.__closure__[0].cell_contents)  # Output: 2</code></pre>
 
-            <h3>4. Decorators & Wrapper Patterns</h3>
-            <p>A decorator is a higher-order function that takes a function object, wraps it with additional behavior,
-              and returns the modified wrapper function:</p>
-            <pre><code>import functools
+          <h3>4. Decorators & Wrapper Patterns</h3>
+          <p>A decorator is a higher-order function that takes a function object, wraps it with additional behavior,
+            and returns the modified wrapper function:</p>
+          <pre><code>import functools
 
-def logger(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        print(f"[LOG] Executing {func.__name__} with args={args}, kwargs={kwargs}")
-        result = func(*args, **kwargs)
-        print(f"[LOG] Finished {func.__name__}")
-        return result
-    return wrapper
+# Function Decorator Factory with arguments
+def retry(times=3):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(times):
+                try:
+                    return func(*args, **kwargs)
+                except Exception:
+                    if attempt == times - 1: raise
+        return wrapper
+    return decorator
 
-@logger
-def add_numbers(a, b):
-    return a + b
+@retry(times=5)
+def flaky_operation():
+    pass
 
-print(add_numbers(10, 20))  # Output: 30</code></pre>
-            <p>Common real-world decorator applications: Logging, Authentication/Authorization, Timing/Profiling,
-              Caching (<code>functools.lru_cache</code>), Input Validation, and Retry Logic.</p>
+# Class-Based Decorator Pattern
+class Cache:
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+        functools.wraps(func)(self)  # Copy metadata (__name__, __doc__)
+    def __call__(self, *args):
+        if args not in self.cache:
+            self.cache[args] = self.func(*args)
+        return self.cache[args]
 
-            <h3>5. Variadic Parameters (<code>*args</code> &amp; <code>**kwargs</code>)</h3>
-            <ul>
-              <li><code>*args</code>: Packs extra positional arguments into a <code>tuple</code>.</li>
-              <li><code>**kwargs</code>: Packs extra keyword arguments into a <code>dict</code>.</li>
-            </ul>
-            <p>Correct parameter declaration order:</p>
-            <pre><code>def func(positional, *args, keyword_only=None, **kwargs):
-    pass</code></pre>
+@Cache
+def expensive_compute(n):
+    return n * n</code></pre>
+          <p>Common real-world decorator applications: Logging, Authentication/Authorization, Timing/Profiling,
+            Caching (<code>functools.lru_cache</code>), Input Validation, and Retry Logic.</p>
 
-            <h3>6. The Mutable Default Argument Trap</h3>
-            <p>Default parameter values are evaluated <b>once</b> when the function module is loaded into memory,
-              storing the default objects in <code>func_defaults</code>. If you use a mutable object like
-              <code>[]</code> or <code>{}</code> as a default, every invocation reuses and mutates the exact same
-              instance!
-            </p>
-            <pre><code># ❌ BUG: Reuses single list instance from func_defaults
+          <h3>5. Variadic Parameters (<code>*args</code> &amp; <code>**kwargs</code>)</h3>
+          <ul>
+            <li><code>*args</code>: Packs extra positional arguments into a <code>tuple</code>.</li>
+            <li><code>**kwargs</code>: Packs extra keyword arguments into a <code>dict</code>.</li>
+            <li>Positional-only parameters (before <code>/</code>): <code>def f(a, b, /, c): ...</code></li>
+            <li>Keyword-only parameters (after <code>*</code>): <code>def f(a, *, b): ...</code></li>
+          </ul>
+
+          <h3>6. The Mutable Default Argument Trap</h3>
+          <p>Default parameter values are evaluated <b>once</b> when the function module is loaded into memory,
+            storing the default objects in <code>func_defaults</code>. If you use a mutable object like
+            <code>[]</code> or <code>{}</code> as a default, every invocation reuses and mutates the exact same
+            instance!
+          </p>
+          <pre><code># ❌ BUG: Reuses single list instance from func_defaults
 def add_item_bad(item, items=[]):
     items.append(item)
     return items
@@ -1238,98 +1315,115 @@ def add_item_good(item, items=None):
 print(add_item_good("A"))  # ['A']
 print(add_item_good("B"))  # ['B'] -- Clean independent state!</code></pre>
 
-            <h3>7. Vectorcall & Closure Cell Scope Resolution Flowchart</h3>
-            <div class="diagram">===================================================================================
-              VECTORCALL FAST-CALL PROTOCOL (PEP 590)
-              ===================================================================================
-              Standard Call (Slow):
-              Caller ──&gt; Create (args, kwargs) Tuple &amp; Dict ──&gt; Function Entry (GC Overhead)
+          <h3>7. Vectorcall & Closure Cell Scope Resolution Flowchart</h3>
+          <div class="diagram">===================================================================================
+            VECTORCALL FAST-CALL PROTOCOL (PEP 590)
+            ===================================================================================
+            Standard Call (Slow):
+            Caller ──&gt; Create (args, kwargs) Tuple &amp; Dict ──&gt; Function Entry (GC Overhead)
 
-              Vectorcall (Fast O(1)):
-              Caller ──&gt; Pass Raw C Array Pointer: PyObject *const *args + Flags ──&gt; Function Entry
+            Vectorcall (Fast O(1)):
+            Caller ──&gt; Pass Raw C Array Pointer: PyObject *const *args + Flags ──&gt; Function Entry
 
-              ===================================================================================
-              CLOSURE CELL RESOLUTION (PyCellObject)
-              ===================================================================================
-              Outer Scope (popped frame): Inner Scope (active function):
-              +--------------------------+ +--------------------------+
-              | outer_func() frame | | inner_func Object |
-              | x = 42 | | func_closure tuple |
-              +--------------------------+ +--------------------------+
-              \ /
-              v v
-              +-----------------------------------------------------------+
-              | PyCellObject |
-              | [ob_refcnt = 1] │ [ob_ref] ──&gt; PyLongObject (42) |
-              +-----------------------------------------------------------+</div>
-            <h3>8. Day 4 Summary</h3>
-            <table class="summary-table">
-              <thead>
-                <tr>
-                  <th>Topic</th>
-                  <th>Key Idea</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>First-Class Objects</td>
-                  <td>Functions can be passed, returned, and stored like any data object.</td>
-                </tr>
-                <tr>
-                  <td>Function Object</td>
-                  <td>Stores bytecode, defaults, globals, and closure information.</td>
-                </tr>
-                <tr>
-                  <td>Closures</td>
-                  <td>Inner functions capture enclosing free variables in <code>PyCellObject</code> containers.</td>
-                </tr>
-                <tr>
-                  <td>Decorators</td>
-                  <td>Higher-order functions wrapping behavior around target functions.</td>
-                </tr>
-                <tr>
-                  <td>*args / **kwargs</td>
-                  <td>Variadic positional tuple and keyword dictionary parameter binding.</td>
-                </tr>
-                <tr>
-                  <td>Default Trap</td>
-                  <td>Default values are stored in <code>func_defaults</code> at module load; use <code>None</code>
-                    sentinels.</td>
-                </tr>
-              </tbody>
-            </table>
+            ===================================================================================
+            CLOSURE CELL RESOLUTION (PyCellObject)
+            ===================================================================================
+            Outer Scope (popped frame):            Inner Scope (active function):
+            +--------------------------+           +--------------------------+
+            | outer_func() frame       |           | inner_func Object        |
+            | x = 42                   |           | func_closure tuple       |
+            +--------------------------+           +--------------------------+
+                        \                                        /
+                         v                                      v
+            +-----------------------------------------------------------+
+            | PyCellObject                                              |
+            | [ob_refcnt = 1]  │  [ob_ref] ──&gt; PyLongObject (42)        |
+            +-----------------------------------------------------------+</div>
+          <h3>8. Day 4 Summary</h3>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Key Idea</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>First-Class Objects</td>
+                <td>Functions can be passed, returned, and stored like any data object.</td>
+              </tr>
+              <tr>
+                <td>Function Object</td>
+                <td>Stores bytecode, defaults, globals, and closure information.</td>
+              </tr>
+              <tr>
+                <td>Closures</td>
+                <td>Inner functions capture enclosing free variables in <code>PyCellObject</code> containers.</td>
+              </tr>
+              <tr>
+                <td>Decorators</td>
+                <td>Higher-order functions wrapping behavior around target functions.</td>
+              </tr>
+              <tr>
+                <td>*args / **kwargs</td>
+                <td>Variadic positional tuple and keyword dictionary parameter binding.</td>
+              </tr>
+              <tr>
+                <td>Default Trap</td>
+                <td>Default values are stored in <code>func_defaults</code> at module load; use <code>None</code>
+                  sentinels.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- DAY 5 -->
+        <div class="day-card" id="day5">
+          <div class="day-title"><span class="day-tag">Day 5</span> Iteration Protocol, Generator Frames & Suspension
           </div>
 
-          <!-- DAY 5 -->
-          <div class="day-card" id="day5">
-            <div class="day-title"><span class="day-tag">Day 5</span> Iteration Protocol, Generator Frames & Suspension
-            </div>
+          <p>Day 5 explores how Python iterates over collections, generator frame allocation on the C-heap,
+            suspension/resumption mechanics via <code>YIELD_VALUE</code>, sub-iterator delegation via
+            <code>yield from</code>, and comprehension scope isolation.
+          </p>
 
-            <p>Day 5 explores how Python iterates over collections, generator frame allocation on the C-heap,
-              suspension/resumption mechanics via <code>YIELD_VALUE</code>, sub-iterator delegation via
-              <code>yield from</code>, and comprehension scope isolation.
-            </p>
+          <h3>1. The Iteration Protocol Mechanics</h3>
+          <p>The iteration protocol relies on two C function pointers ("slots") defined inside
+            <code>PyTypeObject</code>:
+          </p>
+          <ul>
+            <li><code>tp_iter</code>: C function pointer returning an iterator object (invoked via
+              <code>PyObject_GetIter(obj)</code>).
+            </li>
+            <li><code>tp_iternext</code>: C function pointer returning the next item (invoked via
+              <code>PyIter_Next(iter)</code>) or returning <code>NULL</code> when exhausted.
+            </li>
+          </ul>
+          <pre><code>class CountUp:
+    def __init__(self, max_val):
+        self.max_val = max_val
+        self.n = 0
+    def __iter__(self):
+        return self
+    def __next__(self):
+        if self.n &gt;= self.max_val:
+            raise StopIteration
+        self.n += 1
+        return self.n
 
-            <h3>1. The Iteration Protocol Mechanics</h3>
-            <p>The iteration protocol relies on two C function pointers ("slots") defined inside
-              <code>PyTypeObject</code>:
-            </p>
-            <ul>
-              <li><code>tp_iter</code>: C function pointer returning an iterator object (invoked via
-                <code>PyObject_GetIter(obj)</code>).
-              </li>
-              <li><code>tp_iternext</code>: C function pointer returning the next item (invoked via
-                <code>PyIter_Next(iter)</code>) or returning <code>NULL</code> when exhausted.
-              </li>
-            </ul>
-            <p>When <code>tp_iternext</code> returns <code>NULL</code>, CPython checks <code>PyErr_Occurred()</code>. If
-              <code>PyExc_StopIteration</code> was raised, the evaluation loop clears exception state and terminates
-              iteration cleanly.
-            </p>
+for x in CountUp(3):
+    print(x) # 1, 2, 3</code></pre>
+          <p>Under the hood, <code>for x in obj:</code> compiles to:</p>
+          <pre><code>_iter = iter(obj)          # calls obj.__iter__()
+while True:
+    try:
+        x = next(_iter)    # calls _iter.__next__()
+    except StopIteration:
+        break</code></pre>
 
-            <h3>2. Generator Object Structure (<code>PyGenObject</code>)</h3>
-            <p>Generators are stateful stack-frame wrappers defined in <code>Include/genobject.h</code>:</p>
-            <pre><code>typedef struct {
+          <h3>2. Generator Object Structure (<code>PyGenObject</code>)</h3>
+          <p>Generators are stateful stack-frame wrappers defined in <code>Include/genobject.h</code>:</p>
+          <pre><code>typedef struct {
     PyObject_HEAD
     PyFrameObject *gi_frame;    /* Heap-allocated execution frame pointer */
     char gi_running;            /* Flag indicating whether generator is executing */
@@ -1337,34 +1431,48 @@ print(add_item_good("B"))  # ['B'] -- Clean independent state!</code></pre>
     PyObject *gi_yieldfrom;     /* Active sub-iterator pointer during yield from */
 } PyGenObject;</code></pre>
 
-            <h3>3. Suspension and Resumption Mechanics</h3>
-            <p><b>Function Invocation:</b> Calling a generator function instantiates a <code>PyGenObject</code> wrapping
-              <code>gi_frame</code> and returns it immediately <i>without</i> executing frame bytecode
-              (<code>gi_frame->f_state = FRAME_CREATED</code>).
-            </p>
-            <p><b>Executing <code>next(gen)</code> / <code>send()</code>:</b> Sets <code>gi_running = 1</code> and
-              enters <code>PyEval_EvalFrameDefault(gi_frame)</code>. Execution runs until encountering
-              <code>YIELD_VALUE</code>.
-            </p>
-            <p><b>Handling <code>YIELD_VALUE</code>:</b> Pops yielded object from value stack, saves instruction offset
-              in <code>gi_frame->f_lasti</code>, sets frame state to <code>FRAME_SUSPENDED</code>, and returns control
-              to caller while preserving <code>gi_frame</code> on the C-heap.</p>
-            <p><b>Resuming Execution:</b> Subsequent <code>next(gen)</code> calls re-enter
-              <code>PyEval_EvalFrameDefault</code>, jumping directly to instruction <code>gi_frame->f_lasti + 1</code>.
-            </p>
+          <h3>3. Suspension and Resumption Mechanics & Generator Protocols</h3>
+          <p><b>Function Invocation:</b> Calling a generator function instantiates a <code>PyGenObject</code> wrapping
+            <code>gi_frame</code> and returns it immediately <i>without</i> executing frame bytecode
+            (<code>gi_frame->f_state = FRAME_CREATED</code>).
+          </p>
+          <p><b>Executing <code>next(gen)</code> / <code>send()</code>:</b> Sets <code>gi_running = 1</code> and
+            enters <code>PyEval_EvalFrameDefault(gi_frame)</code>. Execution runs until encountering
+            <code>YIELD_VALUE</code>.
+          </p>
+          <p><b>Generator Communication Protocols:</b></p>
+          <ul>
+            <li><code>gen.send(value)</code>: Resumes generator and passes <code>value</code> into the yield expression.</li>
+            <li><code>gen.throw(exc)</code>: Raises exception inside generator at current yield point.</li>
+            <li><code>gen.close()</code>: Raises <code>GeneratorExit</code> inside generator for cleanup.</li>
+          </ul>
+          <pre><code>def accumulator():
+    total = 0
+    while True:
+        val = yield total
+        if val is None: break
+        total += val
 
-            <h3>4. Sub-Iterator Delegation (<code>yield from</code>)</h3>
-            <p><code>yield from iterable</code> delegates iteration directly inside <code>ceval.c</code>:</p>
-            <pre><code>def flatten(matrix):
+gen = accumulator()
+next(gen)              # Prime generator -> 0
+print(gen.send(10))    # 10
+print(gen.send(20))    # 30
+gen.close()            # Close generator</code></pre>
+
+          <h3>4. Sub-Iterator Delegation (<code>yield from</code>)</h3>
+          <p><code>yield from iterable</code> delegates iteration directly inside <code>ceval.c</code>:</p>
+          <pre><code>def flatten(matrix):
     for row in matrix:
         yield from row  # Delegates sub-iteration directly to row iterator
 
-# Equivalent internal sub-iterator delegation:
-# Stores sub-iterator in gi_yieldfrom. Intercepts send(), throw(), close()
-# and forwards directly to sub_iter->tp_iternext without Python re-yielding overhead.</code></pre>
+def chain(*iterables):
+    for it in iterables:
+        yield from it
 
-            <h3>5. Comprehension Internals & Generator Expressions</h3>
-            <pre><code># List Comprehension: Builds full heap list (PyList_New) in memory O(N)
+print(list(chain([1, 2], [3, 4]))) # [1, 2, 3, 4]</code></pre>
+
+          <h3>5. Comprehension Internals & Generator Expressions</h3>
+          <pre><code># List Comprehension: Builds full heap list (PyList_New) in memory O(N)
 squares_list = [x**2 for x in range(1000)]
 
 # Generator Expression: Evaluates lazily on-demand with O(1) memory complexity
@@ -1372,108 +1480,146 @@ squares_gen = (x**2 for x in range(1000))
 print(next(squares_gen))  # 0
 print(next(squares_gen))  # 1</code></pre>
 
-            <h3>6. Generator Execution State Transition Flowchart</h3>
-            <div class="diagram">===================================================================================
-              GENERATOR EXECUTION STATE TRANSITION DIAGRAM
-              ===================================================================================
-              +---------------------------------+
-              | GEN_CREATED | (gi_frame allocated on C-Heap)
-              +---------------------------------+
-              │
-              next() / send()
-              v
-              +---------------------------------+
-              | GEN_RUNNING | (PyEval_EvalFrameDefault active)
-              +---------------------------------+
-              / \
-              YIELD_VALUE return / Exception
-              / \
-              v v
-              +---------------------------------+ +---------------------------------+
-              | GEN_SUSPENDED | | GEN_CLOSED |
-              | - Save instruction offset f_lasti| | - Free gi_frame from C-Heap |
-              | - Yield value back to caller | | - Set gi_frame pointer = NULL |
-              | - Frame remains on C-Heap | +---------------------------------+
-              +---------------------------------+</div>
+          <h3>6. Generator Execution State Transition Flowchart</h3>
+          <div class="diagram">===================================================================================
+            GENERATOR EXECUTION STATE TRANSITION DIAGRAM
+            ===================================================================================
+            +---------------------------------+
+            | GEN_CREATED                     | (gi_frame allocated on C-Heap)
+            +---------------------------------+
+                            │
+                      next() / send()
+                            v
+            +---------------------------------+
+            | GEN_RUNNING                     | (PyEval_EvalFrameDefault active)
+            +---------------------------------+
+                       /             \
+       YIELD_VALUE return           Exception / close()
+                     /                 \
+                    v                   v
+            +---------------------------------+  +---------------------------------+
+            | GEN_SUSPENDED                   |  | GEN_CLOSED                      |
+            | - Save instruction offset f_lasti|  | - Free gi_frame from C-Heap     |
+            | - Yield value back to caller    |  | - Set gi_frame pointer = NULL   |
+            | - Frame remains on C-Heap       |  +---------------------------------+
+            +---------------------------------+</div>
 
-            <h3>7. Day 5 Summary</h3>
-            <table class="summary-table">
-              <thead>
-                <tr>
-                  <th>Topic</th>
-                  <th>Key Idea</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Iteration Protocol</td>
-                  <td>Uses <code>tp_iter</code> and <code>tp_iternext</code> slots; ends cleanly on
-                    <code>StopIteration</code>.
-                  </td>
-                </tr>
-                <tr>
-                  <td>PyGenObject</td>
-                  <td>Wraps heap frame pointer <code>gi_frame</code> persisting between yields.</td>
-                </tr>
-                <tr>
-                  <td>YIELD_VALUE</td>
-                  <td>Saves instruction offset <code>f_lasti</code> and suspends frame on C-heap without destruction.
-                  </td>
-                </tr>
-                <tr>
-                  <td>yield from</td>
-                  <td>Delegates directly to sub-iterator inside <code>ceval.c</code>, bypassing Python re-yield
-                    overhead.</td>
-                </tr>
-                <tr>
-                  <td>Comprehensions</td>
-                  <td>Generator expressions evaluate lazily with O(1) memory complexity vs list allocation.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <h3>7. Day 5 Summary</h3>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Key Idea</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Iteration Protocol</td>
+                <td>Uses <code>tp_iter</code> and <code>tp_iternext</code> slots; ends cleanly on
+                  <code>StopIteration</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>PyGenObject</td>
+                <td>Wraps heap frame pointer <code>gi_frame</code> persisting between yields.</td>
+              </tr>
+              <tr>
+                <td>YIELD_VALUE</td>
+                <td>Saves instruction offset <code>f_lasti</code> and suspends frame on C-heap without destruction.
+                </td>
+              </tr>
+              <tr>
+                <td>yield from</td>
+                <td>Delegates directly to sub-iterator inside <code>ceval.c</code>, bypassing Python re-yield
+                  overhead.</td>
+              </tr>
+              <tr>
+                <td>Comprehensions</td>
+                <td>Generator expressions evaluate lazily with O(1) memory complexity vs list allocation.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <!-- DAY 6 -->
-          <div class="day-card" id="day6">
-            <div class="day-title"><span class="day-tag">Day 6</span> Context Managers, Zero-Cost Exceptions & Kernel
-              Resources</div>
+        <!-- DAY 6 -->
+        <div class="day-card" id="day6">
+          <div class="day-title"><span class="day-tag">Day 6</span> Context Managers, Zero-Cost Exceptions & Kernel
+            Resources</div>
 
-            <p>Day 6 covers context manager protocols (<code>__enter__</code> / <code>__exit__</code>), Python 3.11
-              zero-cost exception tables, exception stack unwinding mechanics, and OS kernel file descriptor management.
-            </p>
+          <p>Day 6 covers context manager protocols (<code>__enter__</code> / <code>__exit__</code>), Python 3.11
+            zero-cost exception tables, exception stack unwinding mechanics, and OS kernel file descriptor management.
+          </p>
 
-            <h3>1. Context Manager Protocol</h3>
-            <p>Context managers implement two protocol methods:</p>
-            <ul>
-              <li><code>__enter__(self)</code>: Prepares resource setup and returns context target object.</li>
-              <li><code>__exit__(self, exc_type, exc_val, exc_tb)</code>: Guarantees teardown cleanup execution
-                regardless of whether errors occurred.</li>
-            </ul>
+          <h3>1. Context Manager Protocol & `contextlib`</h3>
+          <p>Context managers implement two protocol methods:</p>
+          <ul>
+            <li><code>__enter__(self)</code>: Prepares resource setup and returns context target object.</li>
+            <li><code>__exit__(self, exc_type, exc_val, exc_tb)</code>: Guarantees teardown cleanup execution
+              regardless of whether errors occurred. Return <code>True</code> to suppress exceptions.</li>
+          </ul>
+          <pre><code>from contextlib import contextmanager, suppress, ExitStack
 
-            <h3>2. Zero-Cost Exception Tables (<code>co_exceptiontable</code> in Python 3.11+)</h3>
-            <p>Prior to Python 3.11, setup opcodes like <code>SETUP_WITH</code> pushed block entries onto
-              <code>f_blockstack</code> at runtime. In Python 3.11+, blockstacks are replaced by static
-              <code>co_exceptiontable</code> tables mapping bytecode instruction ranges to handler landing pads,
-              eliminating setup opcode overhead on normal execution paths.
-            </p>
+class Timer:
+    import time
+    def __enter__(self):
+        self.start = self.time.perf_counter()
+        return self
+    def __exit__(self, *args):
+        self.elapsed = self.time.perf_counter() - self.start
+        return False  # Do not suppress exceptions
 
-            <h3>3. Exception Raising & Stack Unwinding Pipeline</h3>
-            <ol>
-              <li><b>Raising Error:</b> <code>PyErr_SetObject()</code> stores exception type, value, and traceback in
-                active <code>PyThreadState</code>.</li>
-              <li><b>Table Lookup:</b> Evaluation loop halts linear execution and performs binary search in active
-                frame's <code>co_exceptiontable</code> for current offset <code>f_lasti</code>.</li>
-              <li><b>Local Handler Match:</b> If handler pad exists, adjusts stack depth, pops intermediate objects
-                (<code>Py_DECREF</code>), and jumps <code>f_lasti</code> to handler landing pad.</li>
-              <li><b>Frame Unwinding:</b> If no handler exists in current frame, executes active <code>__exit__</code>
-                blocks, pops frame, decrements refcount, and propagates unwinding up <code>f_back</code> linked list.
-              </li>
-              <li><b>Unhandled Exit:</b> If top of stack is reached unhandled, prints traceback to stderr and terminates
-                process.</li>
-            </ol>
+@contextmanager
+def temp_dir():
+    import tempfile, shutil
+    d = tempfile.mkdtemp()
+    try:
+        yield d
+    finally:
+        shutil.rmtree(d) # ALWAYS executes cleanup
 
-            <h3>4. Kernel File Descriptors & Resource Leak Prevention</h3>
-            <pre><code># ❌ DANGEROUS: Relying on GC for cleanup risks file descriptor leak if trapped in cycle!
+with temp_dir() as d:
+    pass
+
+# Utility tools in contextlib:
+with suppress(FileNotFoundError):
+    import os; os.remove("missing.txt")
+
+# ExitStack for dynamic variable number of resources
+def process_multiple(paths):
+    with ExitStack() as stack:
+        files = [stack.enter_context(open(p)) for p in paths]
+        # All opened files automatically closed on exit</code></pre>
+
+          <h3>2. Zero-Cost Exception Tables (<code>co_exceptiontable</code> in Python 3.11+)</h3>
+          <p>Prior to Python 3.11, setup opcodes like <code>SETUP_WITH</code> pushed block entries onto
+            <code>f_blockstack</code> at runtime. In Python 3.11+, blockstacks are replaced by static
+            <code>co_exceptiontable</code> tables mapping bytecode instruction ranges to handler landing pads,
+            eliminating setup opcode overhead on normal execution paths.
+          </p>
+
+          <h3>3. Exception Raising, Unwinding & Exception Chaining</h3>
+          <pre><code># Exception Chaining with 'from'
+try:
+    connect_database()
+except ConnectionError as e:
+    raise RuntimeError("Service initialization failed") from e
+    # Sets __cause__ and preserves original traceback</code></pre>
+          <ol>
+            <li><b>Raising Error:</b> <code>PyErr_SetObject()</code> stores exception type, value, and traceback in
+              active <code>PyThreadState</code>.</li>
+            <li><b>Table Lookup:</b> Evaluation loop halts linear execution and performs binary search in active
+              frame's <code>co_exceptiontable</code> for current offset <code>f_lasti</code>.</li>
+            <li><b>Local Handler Match:</b> If handler pad exists, adjusts stack depth, pops intermediate objects
+              (<code>Py_DECREF</code>), and jumps <code>f_lasti</code> to handler landing pad.</li>
+            <li><b>Frame Unwinding:</b> If no handler exists in current frame, executes active <code>__exit__</code>
+              blocks, pops frame, decrements refcount, and propagates unwinding up <code>f_back</code> linked list.
+            </li>
+            <li><b>Unhandled Exit:</b> If top of stack is reached unhandled, prints traceback to stderr and terminates
+              process.</li>
+          </ol>
+
+          <h3>4. Kernel File Descriptors & Resource Leak Prevention</h3>
+          <pre><code># ❌ DANGEROUS: Relying on GC for cleanup risks file descriptor leak if trapped in cycle!
 f = open("data.txt", "w")
 f.write("payload")
 # Missing f.close() -> OS file descriptor remains open until GC runs
@@ -1483,232 +1629,216 @@ with open("data.txt", "w") as f:
     f.write("payload")
 # __exit__ ALWAYS executes close(fd) syscall immediately upon block exit</code></pre>
 
-            <h3>5. Zero-Cost Exception Handling & Kernel FD Cleanup Flowchart</h3>
-            <div class="diagram">===================================================================================
-              ZERO-COST EXCEPTION TABLES (co_exceptiontable in Python 3.11+)
-              ===================================================================================
-              Normal Path: [Bytecode Loop] ──> Execute Opcodes ──> Zero Setup Overhead!
-
-              Exception Raised: [PyErr_SetString] ──> Binary Search co_exceptiontable Range
-              │
-              Match Range Found?
-              / \
-              (YES)/ \(NO)
-              v v
-              Jump to Handler Offset Unwind & Pop Frame to f_back
-
-              ===================================================================================
-              KERNEL FILE DESCRIPTOR (FD) LEAK PREVENTER FLOW
-              ===================================================================================
-              [open("data.txt")] ──> OS Kernel Allocates Integer File Descriptor (e.g., FD 3)
-              │
-              with context block:
-              ├──> __enter__() returns File Handle wrapper
-              ├──> Code Block executes
-              └──> __exit__() ALWAYS executes ──> close(3) Syscall ──> Releases Kernel FD</div>
-
-            <h3>6. Day 6 Summary</h3>
-            <table class="summary-table">
-              <thead>
-                <tr>
-                  <th>Topic</th>
-                  <th>Key Idea</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Context Manager</td>
-                  <td><code>__enter__</code> and <code>__exit__</code> guarantee resource cleanup on block exit.</td>
-                </tr>
-                <tr>
-                  <td>co_exceptiontable</td>
-                  <td>Zero-cost exception table mapping instruction ranges to handlers in Python 3.11+.</td>
-                </tr>
-                <tr>
-                  <td>Stack Unwinding</td>
-                  <td>Pops stack frames up <code>f_back</code> linked list until finding handler or printing traceback.
-                  </td>
-                </tr>
-                <tr>
-                  <td>Kernel FDs</td>
-                  <td>Context managers prevent OS file descriptor leaks (<code>EMFILE</code>) by invoking
-                    <code>close(fd)</code>.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <h3>5. Cleanup and Safe Finalizers (<code>weakref.finalize()</code>)</h3>
+          <div class="warning-box">
+            ⚠️ <b>Avoid <code>__del__</code> for Resource Teardown:</b> <code>__del__</code> methods can delay GC, fail during interpreter shutdown, or resurrect dead objects. Use <code>weakref.finalize()</code> for non-blocking cleanup routines.
           </div>
+          <pre><code>import weakref
 
-          <!-- DAY 7 -->
-          <div class="day-card" id="day7">
-            <div class="day-title"><span class="day-tag">Day 7</span> End-to-End Program Execution Lifecycle</div>
+class DatabaseConnection:
+    def __init__(self, db_id):
+        self.db_id = db_id
+        weakref.finalize(self, DatabaseConnection._close_id, db_id)
 
-            <p>Day 7 synthesizes the complete end-to-end lifecycle when executing <code>python main.py</code>, tracking
-              process initialization from kernel space down to C runtime bootstrap, bytecode compilation, opcode loop
-              execution, and process teardown.</p>
+    @staticmethod
+    def _close_id(db_id):
+        print(f"Closed database connection {db_id}")</code></pre>
 
-            <h3>1. Detailed 5-Phase Execution Architecture</h3>
-            <ol>
-              <li><b>Phase 1: OS Kernel Process Initialization:</b>
-                <br>User executes <code>python main.py</code>. Shell issues <code>execve("/usr/bin/python3", ...)</code>
-                syscall. OS kernel ELF loader maps binary into Virtual Memory space (.text, .data, heap, C stack).
-                Execution transfers to C <code>main()</code> in <code>Programs/python.c</code>.
-              </li>
-              <li><b>Phase 2: CPython Runtime Bootstrap (<code>Py_Initialize</code>):</b>
-                <br>Allocates <code>PyInterpreterState</code> and main <code>PyThreadState</code>. Bootstraps
-                <code>pymalloc</code> pools & arenas. Initializes static type objects (<code>PyLong_Type</code>,
-                <code>PyList_Type</code>, etc.). Initializes <code>sys</code> module (<code>sys.modules</code>,
-                <code>sys.path</code>) and <code>builtins</code> dictionary. Creates GIL mutex
-                (<code>PyThread_type_lock</code>).
-              </li>
-              <li><b>Phase 3: Source Code Compilation Pipeline:</b>
-                <br>Opens script file via kernel <code>open()</code> syscall. Lexer (<code>tokenizer.c</code>) emits
-                token stream; PEG Parser (<code>parser.c</code>) builds AST; Symbol Table (<code>symtable.c</code>)
-                resolves variable scopes; Bytecode Compiler (<code>compile.c</code>) emits top-level
-                <code>PyCodeObject</code>.
-              </li>
-              <li><b>Phase 4: Evaluation Loop & OS Syscalls:</b>
-                <br>Instantiates root module <code>PyFrameObject</code> on C-heap.
-                <code>PyEval_EvalFrameDefault()</code> fetches 16-bit wordcodes. <code>a = 100</code> allocates
-                <code>PyLongObject</code> via <code>pymalloc</code>. <code>print("hello")</code> extracts bytes buffer,
-                calls C <code>fwrite()</code>, issuing kernel <code>write(1, "hello\n", 6)</code> syscall to stdout FD
-                1.
-              </li>
-              <li><b>Phase 5: Runtime Teardown & Exit (<code>Py_FinalizeEx</code>):</b>
-                <br>Reaches <code>RETURN_VALUE</code>. Runs final cyclic GC sweep across all generations. Clears
-                <code>sys.modules</code>, releases GIL, frees memory pools. C <code>main()</code> issues OS kernel
-                <code>exit_group(0)</code> syscall to reclaim virtual memory pages.
-              </li>
-            </ol>
+          <h3>6. Zero-Cost Exception Handling & Kernel FD Cleanup Flowchart</h3>
+          <div class="diagram">===================================================================================
+            ZERO-COST EXCEPTION TABLES (co_exceptiontable in Python 3.11+)
+            ===================================================================================
+            Normal Path: [Bytecode Loop] ──> Execute Opcodes ──> Zero Setup Overhead!
 
-            <h3>2. Complete End-to-End Program Execution Architecture Flowchart</h3>
-            <div class="diagram">===================================================================================
-              END-TO-END CPYTHON PROGRAM EXECUTION ARCHITECTURE
-              ===================================================================================
-              [1. OS Kernel Shell Execution]
-              execve("/usr/bin/python3", ["script.py"], envp) ──> Maps ELF binary to VMem
-              │
-              [2. CPython Runtime Bootstrap]
-              Py_Initialize() ──> Allocates InterpreterState, ThreadState, pymalloc & GIL
-              │
-              [3. Source Compilation Pipeline]
-              Source Code ──> Lexer (tokens) ──> PEG Parser ──> AST ──> Symtable ──> PyCodeObject
-              │
-              [4. Evaluation Frame & Opcode Loop]
-              Allocates PyFrameObject on C-Heap ──> PyEval_EvalFrameDefault() ──> pymalloc & GC
-              │
-              [5. Program Termination & Resource Cleanup]
-              Py_FinalizeEx() ──> Runs final GC sweep ──> Flushes I/O ──> OS sys_exit_group()</div>
+            Exception Raised: [PyErr_SetString] ──> Binary Search co_exceptiontable Range
+                                                      │
+                                             Match Range Found?
+                                                    / \
+                                             (YES) /   \ (NO)
+                                                  v     v
+                             Jump to Handler Offset   Unwind & Pop Frame to f_back
 
-            <h3>3. Day 7 Summary</h3>
-            <table class="summary-table">
-              <thead>
-                <tr>
-                  <th>Phase</th>
-                  <th>Key Responsibilities</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1. OS Kernel Exec</td>
-                  <td><code>execve()</code> syscall, ELF memory mapping (.text, heap, stack), C <code>main()</code>
-                    entry.</td>
-                </tr>
-                <tr>
-                  <td>2. Runtime Bootstrap</td>
-                  <td><code>Py_Initialize()</code>, allocates <code>PyInterpreterState</code>, <code>pymalloc</code>,
-                    builtins & GIL.</td>
-                </tr>
-                <tr>
-                  <td>3. Compilation</td>
-                  <td>Tokenizer &rarr; PEG Parser (AST) &rarr; Symbol Table &rarr; <code>PyCodeObject</code>.</td>
-                </tr>
-                <tr>
-                  <td>4. Evaluation Loop</td>
-                  <td><code>PyEval_EvalFrameDefault()</code> opcode execution, <code>pymalloc</code> & kernel I/O
-                    syscalls.</td>
-                </tr>
-                <tr>
-                  <td>5. Teardown & Exit</td>
-                  <td><code>Py_FinalizeEx()</code>, final GC sweep, clears <code>sys.modules</code>, OS
-                    <code>exit_group()</code>.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            ===================================================================================
+            KERNEL FILE DESCRIPTOR (FD) LEAK PREVENTER FLOW
+            ===================================================================================
+            [open("data.txt")] ──> OS Kernel Allocates Integer File Descriptor (e.g., FD 3)
+            │
+            with context block:
+            ├──> __enter__() returns File Handle wrapper
+            ├──> Code Block executes
+            └──> __exit__() ALWAYS executes ──> close(3) Syscall ──> Releases Kernel FD</div>
+
+          <h3>7. Day 6 Summary</h3>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Topic</th>
+                <th>Key Idea</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Context Manager</td>
+                <td><code>__enter__</code> and <code>__exit__</code> guarantee resource cleanup on block exit.</td>
+              </tr>
+              <tr>
+                <td>co_exceptiontable</td>
+                <td>Zero-cost exception table mapping instruction ranges to handlers in Python 3.11+.</td>
+              </tr>
+              <tr>
+                <td>Stack Unwinding</td>
+                <td>Pops stack frames up <code>f_back</code> linked list until finding handler or printing traceback.
+                </td>
+              </tr>
+              <tr>
+                <td>Kernel FDs</td>
+                <td>Context managers prevent OS file descriptor leaks (<code>EMFILE</code>) by invoking
+                  <code>close(fd)</code>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <!-- PLACEHOLDER FOR OTHER WEEKS -->
-        <div id="week-placeholder" class="placeholder-card" style="display:none;">
-          <h2 id="placeholder-title">Module Coming Soon</h2>
-          <p id="placeholder-desc">Notes for this week will appear here as you progress through your 12-week upskill
-            curriculum.</p>
+        <!-- DAY 7 -->
+        <div class="day-card" id="day7">
+          <div class="day-title"><span class="day-tag">Day 7</span> End-to-End Program Execution Lifecycle & Review</div>
+
+          <p>Day 7 synthesizes the complete end-to-end lifecycle when executing <code>python main.py</code>, tracking
+            process initialization from kernel space down to C runtime bootstrap, bytecode compilation, opcode loop
+            execution, and process teardown.</p>
+
+          <h3>1. Detailed 5-Phase Execution Architecture</h3>
+          <ol>
+            <li><b>Phase 1: OS Kernel Process Initialization:</b>
+              <br>User executes <code>python main.py</code>. Shell issues <code>execve("/usr/bin/python3", ...)</code>
+              syscall. OS kernel ELF loader maps binary into Virtual Memory space (.text, .data, heap, C stack).
+              Execution transfers to C <code>main()</code> in <code>Programs/python.c</code>.
+            </li>
+            <li><b>Phase 2: CPython Runtime Bootstrap (<code>Py_Initialize</code>):</b>
+              <br>Allocates <code>PyInterpreterState</code> and main <code>PyThreadState</code>. Bootstraps
+              <code>pymalloc</code> pools & arenas. Initializes static type objects (<code>PyLong_Type</code>,
+              <code>PyList_Type</code>, etc.). Initializes <code>sys</code> module (<code>sys.modules</code>,
+              <code>sys.path</code>) and <code>builtins</code> dictionary. Creates GIL mutex
+              (<code>PyThread_type_lock</code>).
+            </li>
+            <li><b>Phase 3: Source Code Compilation Pipeline:</b>
+              <br>Opens script file via kernel <code>open()</code> syscall. Lexer (<code>tokenizer.c</code>) emits
+              token stream; PEG Parser (<code>parser.c</code>) builds AST; Symbol Table (<code>symtable.c</code>)
+              resolves variable scopes; Bytecode Compiler (<code>compile.c</code>) emits top-level
+              <code>PyCodeObject</code>.
+            </li>
+            <li><b>Phase 4: Evaluation Loop & OS Syscalls:</b>
+              <br>Instantiates root module <code>PyFrameObject</code> on C-heap.
+              <code>PyEval_EvalFrameDefault()</code> fetches 16-bit wordcodes. <code>a = 100</code> allocates
+              <code>PyLongObject</code> via <code>pymalloc</code>. <code>print("hello")</code> extracts bytes buffer,
+              calls C <code>fwrite()</code>, issuing kernel <code>write(1, "hello\n", 6)</code> syscall to stdout FD
+              1.
+            </li>
+            <li><b>Phase 5: Runtime Teardown & Exit (<code>Py_FinalizeEx</code>):</b>
+              <br>Reaches <code>RETURN_VALUE</code>. Runs final cyclic GC sweep across all generations. Clears
+              <code>sys.modules</code>, releases GIL, frees memory pools. C <code>main()</code> issues OS kernel
+              <code>exit_group(0)</code> syscall to reclaim virtual memory pages.
+            </li>
+          </ol>
+
+          <h3>2. Complete End-to-End Program Execution Architecture Flowchart</h3>
+          <div class="diagram">===================================================================================
+            END-TO-END CPYTHON PROGRAM EXECUTION ARCHITECTURE
+            ===================================================================================
+            [1. OS Kernel Shell Execution]
+            execve("/usr/bin/python3", ["script.py"], envp) ──> Maps ELF binary to VMem
+            │
+            [2. CPython Runtime Bootstrap]
+            Py_Initialize() ──> Allocates InterpreterState, ThreadState, pymalloc & GIL
+            │
+            [3. Source Compilation Pipeline]
+            Source Code ──> Lexer (tokens) ──> PEG Parser ──> AST ──> Symtable ──> PyCodeObject
+            │
+            [4. Evaluation Frame & Opcode Loop]
+            Allocates PyFrameObject on C-Heap ──> PyEval_EvalFrameDefault() ──> pymalloc & GC
+            │
+            [5. Program Termination & Resource Cleanup]
+            Py_FinalizeEx() ──> Runs final GC sweep ──> Flushes I/O ──> OS sys_exit_group()</div>
+
+          <h3>3. Key Interview Questions & Answers</h3>
+          <div class="info-box">
+            <b>Q: What happens under the hood when you call a function in Python?</b><br>
+            <b>A:</b> CPython instantiates a <code>PyFrameObject</code> linked to the function's <code>PyCodeObject</code>, pushes it onto the LIFO frame stack via <code>f_back</code>, maps arguments into the <code>f_localsplus</code> array, and executes 16-bit opcodes inside <code>PyEval_EvalFrameDefault</code>.
+          </div>
+          <div class="info-box">
+            <b>Q: How does CPython manage memory?</b><br>
+            <b>A:</b> Primary mechanism is Reference Counting (immediate deallocation when <code>ob_refcnt == 0</code>). Secondary mechanism is Generational Cyclic GC (Gen 0/1/2 trial deletion) for circular references. Small objects (&le; 512B) use <code>pymalloc</code> Arenas/Pools/Blocks.
+          </div>
+          <div class="info-box">
+            <b>Q: Why are closure variable lookups slower than local variables?</b><br>
+            <b>A:</b> Local variables use <code>LOAD_FAST</code> (O(1) direct array index in <code>f_localsplus</code>). Closure variables use <code>LOAD_DEREF</code>, which requires dereferencing a <code>PyCellObject</code> indirection pointer.
+          </div>
+          <div class="info-box">
+            <b>Q: Explain the default mutable argument gotcha.</b><br>
+            <b>A:</b> Default argument values are evaluated once at definition time and stored in <code>func_defaults</code>. Mutable defaults (like <code>[]</code>) are shared across all invocations; mutations persist between calls.
+          </div>
+
+          <h3>4. Recommended Hands-On Experiments Checklist</h3>
+          <ul>
+            <li>☑ Disassemble 5 different functions using <code>dis.dis()</code> and trace instructions.</li>
+            <li>☑ Compare memory consumption of a 1,000,000 element list vs generator using <code>sys.getsizeof()</code>.</li>
+            <li>☑ Build a custom 3-tier decorator (Logging + Retry with Backoff + LRU Cache).</li>
+            <li>☑ Inspect closure cell content via <code>func.__closure__[0].cell_contents</code>.</li>
+            <li>☑ Verify integer singleton cache bounds (<code>-5</code> to <code>256</code>) with <code>is</code> operator.</li>
+            <li>☑ Implement custom context manager using both class methods and <code>@contextmanager</code> generator.</li>
+          </ul>
+
+          <h3>5. Day 7 Summary</h3>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>Key Responsibilities</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1. OS Kernel Exec</td>
+                <td><code>execve()</code> syscall, ELF memory mapping (.text, heap, stack), C <code>main()</code>
+                  entry.</td>
+              </tr>
+              <tr>
+                <td>2. Runtime Bootstrap</td>
+                <td><code>Py_Initialize()</code>, allocates <code>PyInterpreterState</code>, <code>pymalloc</code>,
+                  builtins & GIL.</td>
+              </tr>
+              <tr>
+                <td>3. Compilation</td>
+                <td>Tokenizer &rarr; PEG Parser (AST) &rarr; Symbol Table &rarr; <code>PyCodeObject</code>.</td>
+              </tr>
+              <tr>
+                <td>4. Evaluation Loop</td>
+                <td><code>PyEval_EvalFrameDefault()</code> opcode execution, <code>pymalloc</code> & kernel I/O
+                  syscalls.</td>
+              </tr>
+              <tr>
+                <td>5. Teardown & Exit</td>
+                <td><code>Py_FinalizeEx()</code>, final GC sweep, clears <code>sys.modules</code>, OS
+                  <code>exit_group()</code>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
 
     </main>
   </div>
 
+  <div class="week-nav-btns">
+    <a href="index.html" class="btn-nav">← Overview</a>
+    <a href="week_2.html" class="btn-nav">Week 2: Python Internals →</a>
+  </div>
+
   <footer>
-    <p>Upskill Software & AI Engineering Curriculum • Touch-Optimized Mobile Edition</p>
+    <p>Upskill Software & AI Engineering Curriculum • Touch-Optimized Edition</p>
   </footer>
-
-  <script>
-    const weekTitles = {
-      1: "Week 1: Python Runtime Fundamentals",
-      2: "Week 2: Python Internals",
-      3: "Week 3: Operating Systems & Kernel Concepts",
-      4: "Week 4: Computer Architecture & Networking",
-      5: "Week 5: SQL and Storage Systems",
-      6: "Week 6: Software Engineering & Design",
-      7: "Week 7: Backend Engineering",
-      8: "Week 8: Containers and Cloud",
-      9: "Week 9: Distributed Systems",
-      10: "Week 10: ML Foundations & Deep Learning",
-      11: "Week 11: LLM Systems & RAG",
-      12: "Week 12: Advanced Synthesis & Capstone"
-    };
-
-    function switchWeek(weekNum) {
-      weekNum = parseInt(weekNum);
-
-      // Update mobile pill highlights
-      document.querySelectorAll('.week-pill').forEach(pill => pill.classList.remove('active'));
-      const activePill = document.getElementById('pill-w' + weekNum);
-      if (activePill) {
-        activePill.classList.add('active');
-        activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }
-
-      // Update desktop sidebar highlights
-      document.querySelectorAll('.week-nav-item').forEach(item => item.classList.remove('active'));
-      const activeNav = document.getElementById('nav-w' + weekNum);
-      if (activeNav) activeNav.classList.add('active');
-
-      // Toggle content view
-      const week1Content = document.getElementById('week-1-content');
-      const placeholder = document.getElementById('week-placeholder');
-      const dayNav = document.getElementById('sidebarDayNav');
-      const mobileDayScroller = document.getElementById('mobileDayScroller');
-
-      if (weekNum === 1) {
-        week1Content.style.display = 'block';
-        placeholder.style.display = 'none';
-        if (dayNav) dayNav.style.display = 'block';
-        if (mobileDayScroller) mobileDayScroller.style.display = 'flex';
-      } else {
-        week1Content.style.display = 'none';
-        placeholder.style.display = 'block';
-        if (dayNav) dayNav.style.display = 'none';
-        if (mobileDayScroller) mobileDayScroller.style.display = 'none';
-
-        document.getElementById('placeholder-title').innerText = weekTitles[weekNum] || "Module Coming Soon";
-        document.getElementById('placeholder-desc').innerText = `Notes and deep dives for ${weekTitles[weekNum]} will be published as you complete this module.`;
-      }
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  </script>
 </body>
 
 </html>
