@@ -178,47 +178,58 @@ if success:
 
       <!-- DAY 59 -->
       <div class="day-card" id="day59">
-        <div class="day-title"><span class="day-tag">Day 59</span> Caching at Scale: Hot Keys, Thundering Herds &amp; XFetch</div>
+        <div class="day-title"><span class="day-tag">Day 59</span> Caching at Scale: Hot Keys &amp; Invalidation</div>
         
-        <h3>59.1 Hot Key Solutions</h3>
-        <ul>
-          <li><strong>Local In-Memory Cache (L1):</strong> <code>cachetools.TTLCache</code> inside process memory bypasses Redis network bottleneck.</li>
-          <li><strong>Probabilistic Early Expiry (XFetch):</strong> Refreshes hot key cache before expiration to eliminate cache miss stampedes.</li>
-          <li><strong>Mutex Lock Pattern:</strong> First cache miss acquires Redis lock to populate data while concurrent requests wait.</li>
-        </ul>
+        <h3>59.1 Preventing Thundering Herds (Probabilistic Early Refresh &amp; Mutex Locks)</h3>
+        <pre><code class="python">def get_cached_item(key: str):
+    data = redis_client.get(key)
+    if data is None:
+        # Acquire mutex lock to ensure only 1 thread queries DB
+        if redis_client.set("lock:" + key, "1", nx=True, ex=5):
+            data = db_query_item(key)
+            redis_client.setex(key, 300, data)
+            redis_client.delete("lock:" + key)
+        else:
+            time.sleep(0.1)
+            return get_cached_item(key)
+    return data</code></pre>
       </div>
 
       <!-- DAY 60 -->
       <div class="day-card" id="day60">
-        <div class="day-title"><span class="day-tag">Day 60</span> Event-Driven Systems: Message Ordering &amp; Idempotency</div>
+        <div class="day-title"><span class="day-tag">Day 60</span> Event-Driven Architecture &amp; Idempotency</div>
         
-        <h3>60.1 Message Ordering &amp; Idempotent Consumer</h3>
-        <p>Kafka guarantees strict event ordering <strong>within a partition</strong>. Always set the message key to <code>customer_id</code> or <code>order_id</code> so all related events land in the same partition.</p>
-        <pre><code class="sql">-- Idempotent DB Consumer pattern
+        <h3>60.1 Idempotent Event Consumer Pattern</h3>
+        <pre><code class="sql">-- Idempotency Table: Deduplicate incoming events
 INSERT INTO processed_events (event_id, processed_at)
-VALUES ('evt_12345', NOW())
+VALUES ('evt_98765', NOW())
 ON CONFLICT (event_id) DO NOTHING;</code></pre>
       </div>
 
       <!-- DAY 61 -->
       <div class="day-card" id="day61">
-        <div class="day-title"><span class="day-tag">Day 61</span> Search Systems: Inverted Index &amp; Elasticsearch BM25</div>
+        <div class="day-title"><span class="day-tag">Day 61</span> Search Systems: Inverted Index &amp; Elasticsearch</div>
         
-        <h3>61.1 Inverted Index &amp; BM25 Relevance</h3>
-        <p>An inverted index maps terms to document IDs (<code>"python" -&gt; [doc1, doc3, doc7]</code>). Relevance ranking uses <strong>BM25</strong> (Term Frequency $\times$ Inverse Document Frequency with document length normalization).</p>
+        <h3>61.1 Elasticsearch BM25 Relevance Query</h3>
+        <pre><code class="python">from elasticsearch import Elasticsearch
+es = Elasticsearch(["http://localhost:9200"])
+
+response = es.search(index="products", body={
+    "query": {
+        "multi_match": {
+            "query": "python guide",
+            "fields": ["title^3", "description"],  # Boost title weight 3x
+            "type": "best_fields"
+        }
+    }
+})</code></pre>
       </div>
 
       <!-- DAY 62 -->
       <div class="day-card" id="day62">
-        <div class="day-title"><span class="day-tag">Day 62</span> Capacity Planning, Little's Law &amp; System Design Numbers</div>
+        <div class="day-title"><span class="day-tag">Day 62</span> Capacity Planning, Little's Law &amp; Locust Load Testing</div>
         
         <h3>62.1 Little's Law Formula</h3>
-        <p>$$L = \lambda \times W$$</p>
-        <p>Where $L$ is concurrent requests in system, $\lambda$ is arrival throughput (req/s), and $W$ is average latency (seconds).</p>
-
-        <h3>62.2 System Design Latency Numbers to Know</h3>
-        <table class="summary-table">
-          <thead>
             <tr><th>Operation</th><th>Latency</th></tr>
           </thead>
           <tbody>

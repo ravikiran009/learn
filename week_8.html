@@ -154,19 +154,48 @@ CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "
                      └─> Controller Manager & Scheduler
 Worker Nodes : kubelet <---> containerd / CRI-O <---> kube-proxy (Networking)</div>
 
-        <h3>51.2 Liveness &amp; Readiness Probes</h3>
-        <pre><code class="yaml">livenessProbe:
-  httpGet:
-    path: /health
-    port: 8000
-  initialDelaySeconds: 15
-  periodSeconds: 10
-readinessProbe:
-  httpGet:
-    path: /ready
-    port: 8000
-  initialDelaySeconds: 5
-  periodSeconds: 5</code></pre>
+        <h3>51.2 Kubernetes Deployment Manifest</h3>
+        <pre><code class="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: api-service
+    spec:
+      containers:
+      - name: api
+        image: gcr.io/my-project/api:v1.2.0
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5</code></pre>
       </div>
 
       <!-- DAY 52 -->
@@ -176,6 +205,25 @@ readinessProbe:
         <h3>52.1 CoreDNS Naming Convention</h3>
         <p>Inside a Kubernetes cluster, a pod reaches service <code>my-app-svc</code> in namespace <code>production</code> via FQDN:</p>
         <pre><code>my-app-svc.production.svc.cluster.local</code></pre>
+
+        <h3>52.2 Ingress Routing Rules</h3>
+        <pre><code class="yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.example.com
+    http:
+      paths:
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: api-v1-svc
+            port:
+              number: 80</code></pre>
       </div>
 
       <!-- DAY 53 -->
@@ -184,6 +232,19 @@ readinessProbe:
         
         <h3>53.1 StatefulSets vs Deployments</h3>
         <p>Deployments manage stateless interchangeable pods with random hash IDs. <strong>StatefulSets</strong> manage stateful database clusters (PostgreSQL, Kafka, ZooKeeper) where each pod retains a stable ordinal identity (<code>db-0</code>, <code>db-1</code>) attached to its own persistent volume claim (PVC).</p>
+
+        <h3>53.2 Persistent Volume Claim (PVC) Definition</h3>
+        <pre><code class="yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 50Gi</code></pre>
       </div>
 
       <!-- DAY 54 -->
@@ -205,6 +266,15 @@ readinessProbe:
         <h3>55.1 Serverless Cloud Run vs GKE</h3>
         <p><strong>Cloud Run</strong> automatically scales HTTP container instances from 0 to N based on incoming requests (pay-per-use). <strong>GKE</strong> provides full Kubernetes cluster orchestration for complex microservice meshes and background stateful workers.</p>
         <p><strong>Workload Identity:</strong> Allows GKE pods to assume GCP Service Account roles natively without storing vulnerable JSON credential keys inside container images!</p>
+
+        <h3>55.2 GCP Pub/Sub Publisher Code</h3>
+        <pre><code class="python">from google.cloud import pubsub_v1
+
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path("my-gcp-project", "orders-topic")
+
+future = publisher.publish(topic_path, data=b'{"order_id": 12345}')
+print(f"Published message ID: {future.result()}")</code></pre>
       </div>
 
       <!-- DAY 56 -->

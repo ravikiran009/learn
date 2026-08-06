@@ -152,26 +152,49 @@ top_5_contexts = [doc for _, doc in sorted(zip(scores, candidate_chunks), revers
 
 config = LoraConfig(
     task_type=TaskType.CAUSAL_LM,
-    r=16, lora_alpha=32,
-    target_modules=["q_proj", "v_proj"],
+    r=16,               # Rank of update matrices A and B
+    lora_alpha=32,      # Scaling hyperparameter
+    target_modules=["q_proj", "v_proj"],  # Target attention layers
     lora_dropout=0.05
 )
-model = get_peft_model(base_model, config)</code></pre>
+
+model = get_peft_model(base_pretrained_model, config)
+model.print_trainable_parameters()  # Trains ~0.1% of total model weights!</code></pre>
       </div>
 
       <!-- DAY 73 -->
       <div class="day-card" id="day73">
-        <div class="day-title"><span class="day-tag">Day 73</span> Autonomous Agents: ReAct Pattern &amp; Guardrails</div>
+        <div class="day-title"><span class="day-tag">Day 73</span> LLM Agents, Function Calling &amp; ReAct Loop</div>
         
-        <h3>73.1 The ReAct (Reason + Act) Loop</h3>
-        <div class="diagram">User Goal -> Thought (Reasoning) -> Action (Call Tool / API) -> Observation (Tool Output) -> Repeat -> Final Answer</div>
+        <h3>73.1 OpenAI Function Tool Calling Schema</h3>
+        <pre><code class="python">tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get current weather for location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string", "description": "City name"}
+            },
+            "required": ["location"]
+        }
+    }
+}]
+
+response = openai_client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "What is the weather in Tokyo?"}],
+    tools=tools
+)</code></pre>
       </div>
 
       <!-- DAY 74 -->
       <div class="day-card" id="day74">
-        <div class="day-title"><span class="day-tag">Day 74</span> LLM Evaluation: RAGAS &amp; Hallucination Mitigation</div>
+        <div class="day-title"><span class="day-tag">Day 74</span> RAG Evaluation &amp; Hallucination Mitigation</div>
         
-        <h3>74.1 Core RAGAS Metrics</h3>
+        <h3>74.1 RAGAS Evaluation Framework</h3>
+        <p>Evaluates 4 core RAG dimensions: <strong>Faithfulness</strong> (is the response grounded strictly in retrieved context?), <strong>Answer Relevance</strong>, <strong>Context Precision</strong>, and <strong>Context Recall</strong>.</p>
         <ul>
           <li><strong>Faithfulness:</strong> Measures if the generated answer is strictly grounded in the retrieved context chunks (detects hallucinations).</li>
           <li><strong>Answer Relevancy:</strong> Measures if the answer directly addresses the original user question.</li>

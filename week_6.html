@@ -119,7 +119,7 @@
       <div class="week-header-banner">
         <span class="week-badge">MODULE 06</span>
         <h1>Software Engineering &amp; Design Patterns</h1>
-        <p>SOLID principles (SRP, OCP, LSP, ISP, DIP), coupling vs cohesion, preferring composition over inheritance, Design by Contract, GoF Design Patterns (Factory, Builder, Strategy, Adapter, Proxy, Facade, Command), Repository pattern, Unit of Work, Dependency Injection containers, Clean Architecture inward dependency rule, Hexagonal Ports &amp; Adapters, Domain-Driven Design (Entities, Value Objects, Aggregates, Bounded Contexts), CQRS, and Event Sourcing.</p>
+        <p>SOLID principles (SRP, OCP, LSP, ISP, DIP), coupling levels (content, control, data), high cohesion, composition over inheritance, Design by Contract (Pydantic preconditions/postconditions), GoF Design Patterns (Factory Method, Builder, Strategy, Adapter, Protection/Caching Proxy, Facade, Command with Undo), Repository pattern, Unit of Work context manager, Dependency Injection containers, Clean Architecture inward dependency rule, Hexagonal Ports &amp; Adapters, Domain-Driven Design (Entities vs Value Objects, Aggregates, Bounded Contexts), CQRS, and Event Sourcing append-only log.</p>
       </div>
 
       <!-- DAY 36 -->
@@ -129,14 +129,30 @@
         <h3>36.1 The SOLID Principles</h3>
         <ul>
           <li><strong>S — Single Responsibility Principle (SRP):</strong> A class should have one reason to change. Separate authentication, database persistence, and email notifications into dedicated services.</li>
-          <li><strong>O — Open/Closed Principle (OCP):</strong> Software entities should be open for extension, closed for modification. Use abstract interfaces so new behaviors can be added without modifying existing code.</li>
-          <li><strong>L — Liskov Substitution Principle (LSP):</strong> Subtypes must be substitutable for their base types without altering correctness.</li>
-          <li><strong>I — Interface Segregation Principle (ISP):</strong> Clients should not be forced to depend on methods they do not use. Prefer small specialized interfaces.</li>
-          <li><strong>D — Dependency Inversion Principle (DIP):</strong> High-level business logic must depend on abstractions (interfaces), not low-level implementations (concrete DB drivers).</li>
+          <li><strong>O — Open/Closed Principle (OCP):</strong> Software entities should be open for extension, closed for modification. Use abstract base classes or protocols so new shapes/calculators can be added without editing existing functions.</li>
+          <li><strong>L — Liskov Substitution Principle (LSP):</strong> Subtypes must be substitutable for their base types without altering program correctness. (Avoid subclassing <code>Square</code> from <code>Rectangle</code> if mutating width changes height!).</li>
+          <li><strong>I — Interface Segregation Principle (ISP):</strong> Clients should not be forced to depend on methods they do not use. Split fat interfaces into fine-grained protocols (e.g. <code>Walkable</code>, <code>Flyable</code>, <code>Swimmable</code>).</li>
+          <li><strong>D — Dependency Inversion Principle (DIP):</strong> High-level business logic must depend on abstractions (interfaces), not low-level implementations (concrete MySQL drivers).</li>
         </ul>
 
-        <h3>36.2 Coupling vs Cohesion Goal</h3>
-        <div class="diagram">GOAL: High Cohesion (modules perform a single focused task) + Low Coupling (modules are independent and interact via abstractions).</div>
+        <h3>36.2 Coupling vs Cohesion</h3>
+        <div class="diagram">GOAL: High Cohesion (module contents strongly related to one responsibility) + Low Coupling (modules interact via abstractions).
+Coupling Levels (Worst to Best): Content Coupling -> Control Coupling (passing boolean flags) -> Data Coupling (passing primitive values).</div>
+
+        <pre><code class="python"># DIP Good Example: Injecting abstraction
+from abc import ABC, abstractmethod
+
+class OrderRepository(ABC):
+    @abstractmethod
+    def save(self, order_data: dict): pass
+
+class MySQLRepository(OrderRepository):
+    def save(self, order_data: dict):
+        print("Saved to MySQL database")
+
+class OrderService:
+    def __init__(self, repo: OrderRepository):  # High-level depends on abstraction!
+        self.repo = repo</code></pre>
       </div>
 
       <!-- DAY 37 -->
@@ -144,36 +160,74 @@
         <div class="day-title"><span class="day-tag">Day 37</span> Composition vs Inheritance &amp; Design by Contract</div>
         
         <h3>37.1 Preferring Composition Over Inheritance</h3>
-        <p>Inheritance (IS-A) creates tight coupling and fragile base class hierarchies. Composition (HAS-A) delegates behavior to injected components, allowing runtime strategy swapping!</p>
-        <pre><code class="python">class Report:
-    def __init__(self, data, formatter):
+        <p>Inheritance (IS-A) creates fragile base classes and tight coupling ("gorilla holding a banana in a jungle"). Composition (HAS-A) delegates behavior to injected strategy objects.</p>
+        <pre><code class="python">class Formatter(ABC):
+    @abstractmethod
+    def format(self, data: dict) -> str: pass
+
+class JSONFormatter(Formatter):
+    def format(self, data: dict) -> str: return json.dumps(data)
+
+class HTMLFormatter(Formatter):
+    def format(self, data: dict) -> str: return f"&lt;div&gt;{data}&lt;/div&gt;"
+
+class Report:
+    def __init__(self, data: dict, formatter: Formatter):
         self.data = data
-        self.formatter = formatter  # Injected JSONFormatter or HTMLFormatter
+        self.formatter = formatter  # Composition! Swap formatters dynamically
 
     def render(self):
         return self.formatter.format(self.data)</code></pre>
 
-        <h3>37.2 Design by Contract &amp; Preconditions/Postconditions</h3>
-        <p>Enforce preconditions (caller responsibility), postconditions (function output guarantee), and class invariants using assertions or Pydantic models.</p>
+        <h3>37.2 Design by Contract with Pydantic</h3>
+        <pre><code class="python">from pydantic import BaseModel, field_validator
+
+class BankTransfer(BaseModel):
+    amount: float
+    from_account: str
+    to_account: str
+
+    @field_validator('amount')
+    def amount_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError('Precondition failed: transfer amount must be > 0')
+        return v</code></pre>
       </div>
 
       <!-- DAY 38 -->
       <div class="day-card" id="day38">
         <div class="day-title"><span class="day-tag">Day 38</span> GoF Design Patterns: Factory, Builder, Strategy, Adapter, Proxy, Facade, Command</div>
         
-        <h3>38.1 Builder Pattern with Method Chaining</h3>
+        <h3>38.1 Factory Method Pattern</h3>
+        <pre><code class="python">class Notifier(ABC):
+    @abstractmethod
+    def send(self, msg: str): pass
+
+class EmailNotifier(Notifier):
+    def send(self, msg: str): print(f"Email: {msg}")
+
+class SMSNotifier(Notifier):
+    def send(self, msg: str): print(f"SMS: {msg}")
+
+class NotifierFactory:
+    _registry = {"email": EmailNotifier, "sms": SMSNotifier}
+    @classmethod
+    def create(cls, notifier_type: str) -> Notifier:
+        return cls._registry[notifier_type]()</code></pre>
+
+        <h3>38.2 Builder Pattern with Method Chaining</h3>
         <pre><code class="python">class QueryBuilder:
     def __init__(self):
         self._table = ""; self._conditions = []; self._limit = None
 
-    def from_table(self, table):
+    def from_table(self, table: str):
         self._table = table; return self
-    def where(self, condition):
+    def where(self, condition: str):
         self._conditions.append(condition); return self
-    def limit(self, n):
+    def limit(self, n: int):
         self._limit = n; return self
 
-    def build(self):
+    def build(self) -> str:
         sql = f"SELECT * FROM {self._table}"
         if self._conditions: sql += " WHERE " + " AND ".join(self._conditions)
         if self._limit: sql += f" LIMIT {self._limit}"
@@ -181,10 +235,18 @@
 
 q = QueryBuilder().from_table("users").where("age > 18").limit(10).build()</code></pre>
 
-        <h3>38.2 Command Pattern with Undo Stack</h3>
-        <pre><code class="python">from abc import ABC, abstractmethod
-import shutil
+        <h3>38.3 Strategy, Adapter, Proxy, Facade &amp; Command</h3>
+        <pre><code class="python"># Adapter Pattern: Adapting legacy cents interface to modern USD floats
+class LegacyPaymentSystem:
+    def make_payment(self, cents: int): print(f"Paid {cents} cents")
 
+class PaymentAdapter:
+    def __init__(self, legacy: LegacyPaymentSystem):
+        self.legacy = legacy
+    def charge(self, amount_usd: float):
+        self.legacy.make_payment(int(amount_usd * 100))
+
+# Command Pattern with Undo Stack
 class Command(ABC):
     @abstractmethod
     def execute(self): pass
@@ -192,7 +254,8 @@ class Command(ABC):
     def undo(self): pass
 
 class MoveFileCommand(Command):
-    def __init__(self, src, dst): self.src = src; self.dst = dst
+    def __init__(self, src: str, dst: str):
+        self.src = src; self.dst = dst
     def execute(self): shutil.move(self.src, self.dst)
     def undo(self): shutil.move(self.dst, self.src)</code></pre>
       </div>
@@ -217,7 +280,12 @@ class MoveFileCommand(Command):
             self.session.commit()
         else:
             self.session.rollback()
-        self.session.close()</code></pre>
+        self.session.close()
+
+# Atomic transactional execution across multiple repositories!
+with UnitOfWork(SessionFactory) as uow:
+    user = uow.users.get_by_id(1)
+    uow.orders.save(Order(user_id=user.id, amount=150.0))</code></pre>
       </div>
 
       <!-- DAY 40 -->
@@ -225,22 +293,28 @@ class MoveFileCommand(Command):
         <div class="day-title"><span class="day-tag">Day 40</span> Clean &amp; Hexagonal Architecture (Ports &amp; Adapters)</div>
         
         <h3>40.1 The Inward Dependency Rule</h3>
-        <div class="diagram">Entities (Business Rules) <-- Use Cases <-- Interface Adapters <-- Frameworks/DB (Outermost)
-Inward Rule: Source code dependencies MUST point INWARD only. High-level domain logic never imports framework/ORM code!</div>
+        <div class="diagram">Entities (Enterprise Rules) <-- Use Cases (App Rules) <-- Interface Adapters (Controllers) <-- Frameworks & DBs (Outer)
+Inward Rule: Source code dependencies MUST point INWARD only. Domain logic never imports SQLAlchemy, FastAPI, or Pydantic!</div>
+
+        <h3>40.2 Hexagonal Ports &amp; Adapters</h3>
+        <p><strong>Input Ports</strong> define driving interfaces (e.g. REST Controller or CLI calling the Domain). <strong>Output Ports</strong> define driven interfaces (e.g. <code>NotificationPort</code> implemented by <code>TwilioSMSAdapter</code> or <code>SendGridEmailAdapter</code>).</p>
       </div>
 
       <!-- DAY 41 -->
       <div class="day-card" id="day41">
         <div class="day-title"><span class="day-tag">Day 41</span> Domain-Driven Design (DDD), CQRS &amp; Event Sourcing</div>
         
-        <h3>41.1 Entities vs Value Objects</h3>
+        <h3>41.1 DDD Building Blocks</h3>
         <ul>
-          <li><strong>Entity:</strong> Object defined by a unique persistent thread of identity (e.g. <code>User(id="usr_123")</code>).</li>
-          <li><strong>Value Object:</strong> Immutable object defined strictly by its attributes (e.g. <code>Money(amount=100, currency="USD")</code>).</li>
+          <li><strong>Entity:</strong> Object defined by a persistent unique identity thread (e.g. <code>User(id="usr_123")</code>).</li>
+          <li><strong>Value Object:</strong> Immutable object defined strictly by its attribute values (e.g. <code>Money(amount=100, currency="USD")</code>).</li>
+          <li><strong>Aggregate Root:</strong> The primary gateway entity governing a boundary of child entities (e.g. <code>Order</code> controlling <code>OrderItems</code>).</li>
+          <li><strong>Bounded Context:</strong> Explicit boundary where a specific domain model applies (e.g. <code>Product</code> means catalog item in Marketing Context vs SKU stock count in Warehouse Context).</li>
         </ul>
 
         <h3>41.2 CQRS &amp; Event Sourcing</h3>
-        <p><strong>CQRS</strong> separates read models (queries) from write models (commands). <strong>Event Sourcing</strong> persists state changes as an immutable append-only sequence of domain events rather than mutating row columns in-place.</p>
+        <p><strong>CQRS (Command Query Responsibility Segregation):</strong> Separates write models (Commands) from read models (Queries) for independent scaling.</p>
+        <p><strong>Event Sourcing:</strong> Instead of mutating database row columns in-place, store state changes as an append-only stream of immutable domain events (e.g. <code>OrderCreated</code>, <code>PaymentProcessed</code>, <code>ItemShipped</code>).</p>
       </div>
 
       <!-- DAY 42 -->

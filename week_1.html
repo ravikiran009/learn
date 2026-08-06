@@ -1218,11 +1218,23 @@ print(ops[1](2, 3))  # 6</code></pre>
 print(greet.__name__)                # 'greet'
 print(greet.__defaults__)            # ('Hello',)
 print(greet.__code__.co_varnames)    # ('name', 'greeting')</code></pre>
+          <p><b>Bound Methods vs. Raw Functions (<code>__func__</code> &amp; <code>__self__</code>):</b> Accessing a method on an instance (e.g. <code>b.method</code>) returns a bound method object. To inspect the raw underlying <code>PyFunctionObject</code> (and its <code>__code__</code> object), use <code>__func__</code>:</p>
+          <pre><code>class B:
+    def __init__(self, val):
+        self.val = val
+
+b = B(5)
+print(type(b.__init__))          # &lt;class 'method'&gt; (bound method)
+print(type(b.__init__.__func__)) # &lt;class 'function'&gt; (raw PyFunctionObject)
+print(b.__init__.__self__)       # &lt;__main__.B instance&gt; (bound instance)
+
+# Accessing bytecode metadata on instance methods:
+print(b.__init__.__func__.__code__.co_varnames) # ('self', 'val')</code></pre>
           <p>The <b>Vectorcall Fast-Call Protocol</b> (PEP 590) optimizes call sites by passing function arguments as
             a raw C array pointer (<code>PyObject *const *args</code>), bypassing intermediate tuple/dict heap
             allocations and GC overhead.</p>
 
-          <h3>3. Closure Mechanics & Cell Objects (<code>PyCellObject</code>)</h3>
+          <h3>3. Closure Mechanics, <code>nonlocal</code> &amp; Cell Objects (<code>PyCellObject</code>)</h3>
           <p>A closure is an inner function that retains access to variables from its enclosing lexical scope even
             after the outer function frame has popped from the stack. Shared free variables are wrapped in
             heap-allocated <code>PyCellObject</code> instances (<code>Include/cellobject.h</code>):</p>
@@ -1230,29 +1242,58 @@ print(greet.__code__.co_varnames)    # ('name', 'greeting')</code></pre>
     PyObject_HEAD
     PyObject *ob_ref; /* Pointer to shared heap object */
 } PyCellObject;</code></pre>
-          <pre><code>def power(n):
-    def calculate(x):
-        return x ** n
-    return calculate
+          <pre><code>def make_counter(start=0):
+    count = start
+    val = 10
+    def counter():
+        nonlocal count, val
+        count += 1
+        return count
+    return counter
 
-square = power(2)
-cube = power(3)
+c1 = make_counter(0)
+c2 = make_counter(10)
 
-print(square(5))  # 25
-print(cube(5))    # 125
+c1()  # count becomes 1
+print([cell.cell_contents for cell in c1.__closure__]) # Output: [1, 10]
+print([cell.cell_contents for cell in c2.__closure__]) # Output: [10, 10] (Independent Heap Cells!)</code></pre>
 
-# Inspect closure cell value:
-print(square.__closure__[0].cell_contents)  # Output: 2</code></pre>
+          <h4>Key Observations &amp; Runtime Behavior:</h4>
+          <ul>
+            <li><b>Cell Objects (<code>__closure__</code>):</b> Captured enclosing variables are wrapped inside a tuple of <code>PyCellObject</code> elements. Access live contents via <code>cell.cell_contents</code>. Top-level / module-level functions capture no enclosing variables, so their <code>__closure__</code> is <code>None</code> (looping over top-level <code>__closure__</code> raises <code>TypeError: 'NoneType' object is not iterable</code>).</li>
+            <li><b><code>nonlocal</code> vs. <code>global</code> Scope Binding:</b>
+              <ul>
+                <li><b><code>nonlocal</code></b> explicitly binds inner function variables to the nearest enclosing <i>function</i> scope, compiling instructions to <code>LOAD_DEREF</code> / <code>STORE_DEREF</code> for in-place cell mutation.</li>
+                <li>Without <code>nonlocal</code>, executing <code>count += 1</code> marks <code>count</code> as a local variable at compile time, causing <code>UnboundLocalError: local variable 'count' referenced before assignment</code>.</li>
+                <li>Using <code>nonlocal</code> on a module-level global variable raises <code>SyntaxError: no binding for nonlocal 'var' found</code> because <code>nonlocal</code> strictly skips global scope.</li>
+                <li>Use <b><code>global</code></b> for module-level variables. Global variables reside in <code>__globals__</code>, NOT inside <code>__closure__</code>.</li>
+              </ul>
+            </li>
+          </ul>
 
           <h3>4. Decorators & Wrapper Patterns</h3>
           <p>A decorator is a higher-order function that takes a function object, wraps it with additional behavior,
             and returns the modified wrapper function:</p>
-          <pre><code>import functools
+          <pre><code>from functools import wraps
+
+# Basic Decorator Pattern using @wraps to preserve metadata
+def log(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        result = func(*args, **kwargs)
+        print(f"Done {func.__name__}")
+        return result
+    return wrapper
+
+@log
+def add(a, b):
+    return a + b
 
 # Function Decorator Factory with arguments
 def retry(times=3):
     def decorator(func):
-        @functools.wraps(func)
+        @wraps(func)
         def wrapper(*args, **kwargs):
             for attempt in range(times):
                 try:
@@ -1271,7 +1312,7 @@ class Cache:
     def __init__(self, func):
         self.func = func
         self.cache = {}
-        functools.wraps(func)(self)  # Copy metadata (__name__, __doc__)
+        wraps(func)(self)  # Copy metadata (__name__, __doc__)
     def __call__(self, *args):
         if args not in self.cache:
             self.cache[args] = self.func(*args)
@@ -1282,6 +1323,14 @@ def expensive_compute(n):
     return n * n</code></pre>
           <p>Common real-world decorator applications: Logging, Authentication/Authorization, Timing/Profiling,
             Caching (<code>functools.lru_cache</code>), Input Validation, and Retry Logic.</p>
+
+          <h4>Key Observations &amp; Runtime Mechanics:</h4>
+          <ul>
+            <li><b>Metadata Preservation (<code>functools.wraps</code>):</b> Decorators replace target functions with wrapper instances. Without <code>@wraps(func)</code>, target metadata is overwritten (<code>__name__</code> becomes <code>'wrapper'</code> and <code>__doc__</code> is lost). <code>@wraps(func)</code> copies <code>__name__</code>, <code>__doc__</code>, <code>__annotations__</code>, <code>__module__</code> and sets <code>__wrapped__</code>. In class decorators, <code>functools.wraps(func)(self)</code> copies metadata onto the instance.</li>
+            <li><b>Class-Based Decorators (<code>__init__</code> &amp; <code>__call__</code>):</b> Decorating with a class instantiates the object during module loading (<code>__init__</code>). Implementing <code>__call__(self, *args)</code> makes instances callable. Class decorators allow storing state (like <code>self.cache</code>) on instance attributes without relying on <code>nonlocal</code> closure variables.</li>
+            <li><b>Subscripting &amp; <code>__closure__</code>:</b> <code>__closure__</code> is a standard Python <code>tuple</code> implementing <code>__getitem__</code>, allowing index lookups like <code>__closure__[0]</code>. Indexing fails with <code>TypeError: 'NoneType' object is not subscriptable</code> if invoked on top-level functions whose <code>__closure__</code> is <code>None</code>.</li>
+            <li><b>Interactive Debugging &amp; REPL (<code>breakpoint()</code>):</b> Calling <code>breakpoint()</code> invokes PDB (or <code>code.interact()</code>). <b>Compilation Phase Trap:</b> CPython compiles the entire file to bytecode before execution begins. Syntax errors (such as un-commented notes) cause compilation failure, preventing Python from reaching <code>breakpoint()</code>.</li>
+          </ul>
 
           <h3>5. Variadic Parameters (<code>*args</code> &amp; <code>**kwargs</code>)</h3>
           <ul>
@@ -1446,7 +1495,16 @@ while True:
             <li><code>gen.throw(exc)</code>: Raises exception inside generator at current yield point.</li>
             <li><code>gen.close()</code>: Raises <code>GeneratorExit</code> inside generator for cleanup.</li>
           </ul>
-          <pre><code>def accumulator():
+          <pre><code>def fibonacci():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+gen = fibonacci()
+print([next(gen) for _ in range(8)])  # Output: [0, 1, 1, 2, 3, 5, 8, 13]
+
+def accumulator():
     total = 0
     while True:
         val = yield total
@@ -1458,6 +1516,11 @@ next(gen)              # Prime generator -> 0
 print(gen.send(10))    # 10
 print(gen.send(20))    # 30
 gen.close()            # Close generator</code></pre>
+          <p><b>Why Infinite Generators Do Not Cause <code>RecursionError</code>:</b></p>
+          <ul>
+            <li><b>Iterative Loop:</b> <code>fibonacci()</code> uses an iterative <code>while True:</code> loop and never invokes itself recursively.</li>
+            <li><b>$O(1)$ Call Stack Depth:</b> When <code>yield</code> executes, CPython suspends the generator frame on the heap and yields control back to the caller frame. The active call stack depth is always $O(1)$, preventing stack overflow regardless of how many values are generated.</li>
+          </ul>
 
           <h3>4. Sub-Iterator Delegation (<code>yield from</code>)</h3>
           <p><code>yield from iterable</code> delegates iteration directly inside <code>ceval.c</code>:</p>

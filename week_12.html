@@ -140,36 +140,50 @@
       <!-- DAY 79 -->
       <div class="day-card" id="day79">
         <div class="day-title"><span class="day-tag">Day 79</span> Profiling: py-spy Sampling &amp; SVG Flame Graphs</div>
+        <div class="day-title"><span class="day-tag">Day 79</span> CPU &amp; Memory Profiling, py-spy &amp; Flame Graphs</div>
         
-        <h3>79.1 Zero-Overhead Production Flame Graphs with py-spy</h3>
-        <pre><code class="bash"># Sample a running production process by PID without stopping code execution
-py-spy record --pid 12345 --format svg -o flamegraph.svg
+        <h3>79.1 Production CPU Profiling with py-spy</h3>
+        <pre><code class="bash"># Sample a live production Python process without restarting or modifying code
+py-spy top --pid 12345
 
-# Or run interactively like top
-py-spy top --pid 12345</code></pre>
+# Generate interactive SVG Flame Graph
+py-spy record -o flamegraph.svg --pid 12345</code></pre>
+
+        <h3>79.2 Memory Leak Profiling with tracemalloc</h3>
+        <pre><code class="python">import tracemalloc
+
+tracemalloc.start()
+snap1 = tracemalloc.take_snapshot()
+
+# Run suspect workload...
+snap2 = tracemalloc.take_snapshot()
+
+top_stats = snap2.compare_to(snap1, 'lineno')
+for stat in top_stats[:10]:
+    print(stat)</code></pre>
       </div>
 
       <!-- DAY 80 -->
       <div class="day-card" id="day80">
-        <div class="day-title"><span class="day-tag">Day 80</span> Debugging Production: Memory Leaks, Deadlocks &amp; Latency Spikes</div>
+        <div class="day-title"><span class="day-tag">Day 80</span> Production Debugging: Memory Leaks, Deadlocks &amp; Thread Dumps</div>
         
-        <h3>80.1 Diagnosing Thread Deadlocks</h3>
-        <p>Use Python's <code>faulthandler</code> standard library module to dump all active thread C/Python stack tracebacks when a service freezes:</p>
+        <h3>80.1 Runtime Thread Dump Diagnosis</h3>
         <pre><code class="python">import faulthandler
-faulthandler.enable()
-# Invoking faulthandler.dump_traceback() outputs stack frames of all running threads!</code></pre>
+faulthandler.enable()  # Enable faulthandler
+
+# In production terminal: send SIGABRT or SIGFPE to print full stack traces of ALL threads to stderr!
+# kill -SIGFPE <pid></code></pre>
       </div>
 
       <!-- DAY 81 -->
       <div class="day-card" id="day81">
-        <div class="day-title"><span class="day-tag">Day 81</span> Security: Secrets Management &amp; OWASP Top 10</div>
+        <div class="day-title"><span class="day-tag">Day 81</span> Security: Secrets Management, Dependency Audits &amp; OWASP Top 10</div>
         
-        <h3>81.1 Security Best Practices</h3>
-        <ul>
-          <li><strong>Secrets:</strong> Use HashiCorp Vault or GCP Secret Manager with Workload Identity (never hardcode tokens or commit them to Git repositories).</li>
-          <li><strong>Dependency Scanning:</strong> Run <code>pip-audit -r requirements.txt</code> in CI/CD pipelines to flag CVE security vulnerabilities.</li>
-          <li><strong>SQL Injection Prevention:</strong> ALWAYS pass arguments via parameterized tuple bindings (<code>cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))</code>).</li>
-        </ul>
+        <h3>81.1 Parameterized SQL Queries &amp; Dependency Auditing</h3>
+        <pre><code class="bash"># Audit PyPI dependencies for known vulnerabilities (CVEs)
+pip-audit -r requirements.txt</code></pre>
+        <pre><code class="python"># Safe Parameterized SQL Query (Prevents SQL Injection)
+cursor.execute("SELECT * FROM users WHERE email = %s AND status = %s", (user_email, "active"))</code></pre>
       </div>
 
       <!-- DAY 82 -->

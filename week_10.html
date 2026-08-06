@@ -178,20 +178,27 @@ class MultiLayerPerceptron(nn.Module):
       <div class="day-card" id="day68">
         <div class="day-title"><span class="day-tag">Day 68</span> Transformers: Tokenization, Self-Attention &amp; RoPE</div>
         
-        <h3>68.1 Scaled Dot-Product Self-Attention Formula</h3>
-        <div class="diagram">Attention(Q, K, V) = Softmax( (Q × Kᵀ) / √d_k ) × V</div>
-        <p>Query ($Q$), Key ($K$), and Value ($V$) linear projections enable every token to dynamically focus on all contextual tokens across the sequence.</p>
+        <h3>68.1 Scaled Dot-Product Self-Attention</h3>
+        <p>$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$</p>
+        <pre><code class="python">import torch.nn.functional as F
+
+def self_attention(X, W_q, W_k, W_v, d_k):
+    Q = torch.matmul(X, W_q)
+    K = torch.matmul(X, W_k)
+    V = torch.matmul(X, W_v)
+    
+    scores = torch.matmul(Q, K.transpose(-2, -1)) / (d_k ** 0.5)
+    attn_weights = F.softmax(scores, dim=-1)
+    return torch.matmul(attn_weights, V)</code></pre>
       </div>
 
       <!-- DAY 69 -->
       <div class="day-card" id="day69">
-        <div class="day-title"><span class="day-tag">Day 69</span> Inference Optimization: KV Cache, Quantization &amp; vLLM</div>
+        <div class="day-title"><span class="day-tag">Day 69</span> LLM Inference: KV Cache, Quantization &amp; Continuous Batching</div>
         
         <h3>69.1 KV Cache Acceleration</h3>
-        <p>During autoregressive decoding, storing Key ($K$) and Value ($V$) tensors reduces generation time complexity from $O(N^2)$ to $O(N)$, eliminating redundant matrix recalculations!</p>
-
-        <h3>69.2 PagedAttention (vLLM)</h3>
-        <p>vLLM introduces <strong>PagedAttention</strong>, which manages KV cache tensors in non-contiguous virtual memory blocks (pages), eliminating 60%+ memory fragmentation and enabling continuous batching!</p>
+        <p>Autoregressive LLM generation requires previous token keys/values. Storing previous $K, V$ tensors avoids redundant $O(N^2)$ recomputations, reducing step time complexity to $O(1)$ per new token!</p>
+        <p><strong>Quantization:</strong> FP16 (16-bit half precision) &rarr; INT8 &rarr; INT4 (GGUF / AWQ) saves up to 8x VRAM for running LLMs on consumer GPUs.</p>
       </div>
 
       <!-- DAY 70 -->

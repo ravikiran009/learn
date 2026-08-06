@@ -144,6 +144,15 @@
     if idem_key:
         redis_client.setex(f"idem:{idem_key}", 86400, json.dumps(result))
     return JSONResponse(status_code=201, content=result)</code></pre>
+
+        <h3>43.3 RFC 7807 Problem Details Error Format</h3>
+        <pre><code class="json">{
+  "type": "https://api.example.com/errors/validation-error",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "The 'email' field is required",
+  "instance": "/api/v1/users"
+}</code></pre>
       </div>
 
       <!-- DAY 44 -->
@@ -156,6 +165,9 @@ Header: {"alg": "HS256", "typ": "JWT"}
 Payload: {"sub": "usr_123", "exp": 1700000000, "role": "admin"}
 Signature: HMAC-SHA256(Base64(Header) + "." + Base64(Payload), SecretKey)</div>
         <p><strong>Security Rule:</strong> Never store JWT tokens in <code>localStorage</code> (vulnerable to XSS). Always store access tokens in <code>httpOnly; Secure; SameSite=Strict</code> cookies!</p>
+
+        <h3>44.2 OAuth 2.0 PKCE Flow (Proof Key for Code Exchange)</h3>
+        <p>Public clients (SPAs, mobile apps) generate a random <code>code_verifier</code> and send <code>code_challenge = SHA256(code_verifier)</code> during authorization to prevent auth code interception attacks.</p>
       </div>
 
       <!-- DAY 45 -->
@@ -200,7 +212,16 @@ chord(group(fetch.s(i) for i in range(5)), aggregate_results.s()).delay()</code>
       <div class="day-card" id="day47">
         <div class="day-title"><span class="day-tag">Day 47</span> Rate Limiting, Circuit Breakers &amp; Bulkheads</div>
         
-        <h3>47.1 Circuit Breaker State Machine</h3>
+        <h3>47.1 Token Bucket Rate Limiting (Redis)</h3>
+        <pre><code class="python">def is_rate_limited(user_id: str, limit: int = 100, window_sec: int = 60) -> bool:
+    current_bucket = int(time.time() // window_sec)
+    key = f"rate:{user_id}:{current_bucket}"
+    req_count = redis_client.incr(key)
+    if req_count == 1:
+        redis_client.expire(key, window_sec)
+    return req_count > limit</code></pre>
+
+        <h3>47.2 Circuit Breaker State Machine</h3>
         <div class="diagram">CLOSED (Normal Operation) ──(Threshold Failures Exceeded)──> OPEN (Immediately Fails Calls)
      ▲                                                                │
      └─────────── (Test Succeeded) ── HALF-OPEN <── (Recovery Timeout) ┘</div>
@@ -210,7 +231,19 @@ chord(group(fetch.s(i) for i in range(5)), aggregate_results.s()).delay()</code>
       <div class="day-card" id="day48">
         <div class="day-title"><span class="day-tag">Day 48</span> Observability: Structured Logging, Prometheus &amp; OpenTelemetry</div>
         
-        <h3>48.1 OpenTelemetry Distributed Tracing</h3>
+        <h3>48.1 Prometheus Custom Metrics</h3>
+        <pre><code class="python">from prometheus_client import Counter, Histogram
+
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP Requests", ["method", "endpoint"])
+REQUEST_LATENCY = Histogram("http_request_duration_seconds", "Request Latency", ["endpoint"])
+
+@app.get("/api/data")
+def read_data():
+    with REQUEST_LATENCY.labels(endpoint="/api/data").time():
+        REQUEST_COUNT.labels(method="GET", endpoint="/api/data").inc()
+        return {"status": "ok"}</code></pre>
+
+        <h3>48.2 OpenTelemetry Distributed Tracing</h3>
         <pre><code class="python">from opentelemetry import trace
 
 tracer = trace.get_tracer("order_service")

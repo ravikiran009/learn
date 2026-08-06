@@ -184,12 +184,21 @@ print(stdout.strip())</code></pre>
         <pre><code class="python">import threading, queue
 
 lock = threading.Lock()
-rlock = threading.RLock()        # Reentrant lock
+rlock = threading.RLock()        # Reentrant lock — same thread can acquire multiple times
 semaphore = threading.Semaphore(3)  # Allows max 3 concurrent threads
 event = threading.Event()        # Flag signaling between threads
+condition = threading.Condition(lock)  # Wait for a predicate to become true
 
 # Thread-safe queue for worker communication
-task_queue = queue.Queue(maxsize=100)</code></pre>
+task_queue = queue.Queue(maxsize=100)
+
+# Thread-local storage — each thread gets its own copy
+thread_local = threading.local()
+
+def worker():
+    thread_local.request_id = "req-" + str(threading.get_ident())
+    # Each thread has independent thread_local.request_id
+    print(thread_local.request_id)</code></pre>
 
         <h3>16.4 Deadlocks &amp; Coffman Conditions</h3>
         <p>A deadlock occurs when two or more threads are blocked forever, each holding a lock the other requires. The 4 Coffman conditions for deadlock:</p>
@@ -200,6 +209,18 @@ task_queue = queue.Queue(maxsize=100)</code></pre>
           <li><strong>Circular Wait:</strong> A circular chain of dependent waiting threads.</li>
         </ol>
         <p><em>Prevention: Always enforce strict Lock Ordering across all threads!</em></p>
+
+        <h3>16.5 GIL Release Points</h3>
+        <p>CPython's GIL is released during:</p>
+        <ul>
+          <li><strong>I/O system calls</strong> (socket read/write, file read/write)</li>
+          <li><strong>Long-running C extensions</strong> (NumPy matrix operations, hashlib)</li>
+          <li><strong>Every 5ms (sys.getswitchinterval())</strong> to allow other threads to run</li>
+          <li><strong>time.sleep()</strong> — always releases GIL</li>
+        </ul>
+        <pre><code class="python">import sys
+sys.getswitchinterval()   # Returns 0.005 (5ms default)
+sys.setswitchinterval(0.001)  # More frequent thread switching (I/O-heavy workloads)</code></pre>
       </div>
 
       <!-- DAY 17 -->
